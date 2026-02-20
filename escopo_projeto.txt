@@ -1,0 +1,70 @@
+Construir um mini-sistema utilizável (com interface) para controlar entrada/saída de 
+veículos em um estacionamento, com persistência em banco, relatórios e regras de negócio, 
+que será comercializado no Brasil e Argentina, seguindo as seguintes premissas: 
+
+• O projeto deve ser feito em ASP.NET Core Web API; 
+• Toda persistência deve ser feita em SQLite; 
+• Front-end: Angular 17+ 
+
+Entrega Base 
+1) Campos mínimos: Placa (Obrigatório), Modelo, Cor e Tipo 
+• Placa é unica (não pode ter 2 veículos cadastrados com a mesma placa) 
+• Validações mínimas de formulário 
+
+2) Movimentação de Entrada e Saída 
+• Um veículo não pode entrar se já estiver “no pátio” (sessão aberta). 
+• Um veículo não pode sair se não tiver sessão aberta. 
+• A saída deve registrar: data/hora de saída e valor cobrado. 
+
+3) Precificação 
+• Primeira hora: R$ X 
+• Demais horas: R$ Y por hora (arredondamento a seu critério, explique no 
+README) 
+
+4) Interface de Operação (Front) 
+• Tela “Pátio agora”: lista dos veículos com sessão aberta com busca por placa 
+• Ação “Registrar saída” (mostrando valor antes de confirmar) 
+• Tela “Cadastro de veículo”: criar/editar/listar 
+
+5) Relatórios (SQL / Consultas) 
+• Query de Faturamento por dia (últimos 7 ou 30 dias) 
+• Query Top 10 veículos por tempo estacionado em um período 
+
+Achou fácil demais? 
+• Query Ocupação por hora (ex.: quantos veículos estavam no pátio por hora do 
+dia, em um período) 
+Caso tenha achado a primeira parte fácil demais, você pode avançar no seu 
+desenvolvimento escolhendo até 3 aprofundamentos abaixo: 
+
+• Autenticação e Autorização 
+o Usuários com perfis: Admin e Operador 
+o Admin gerencia usuários 
+o Operador faz entradas/saídas 
+ 
+ 
+• Concorrência e consistência 
+o Tratar condição de corrida (duplo clique, duas requisições simultâneas) 
+o Garantir que não abre/fecha sessão duplicada 
+
+• Paginação, filtros e ordenação 
+o Endpoints com filtros por período/placa/status (aberta/fechada) 
+o UI com paginação real 
+
+• Testes automatizados 
+o Unit tests (regras de domínio) 
+o Integration tests (principais endpoints) 
+
+• Observabilidade 
+o Logging estruturado 
+o Healthcheck 
+o Trace/correlation id (bônus) 
+
+• UX caprichada 
+o Estados de loading/empty 
+o Validação amigável 
+o Layout minimamente profissional 
+
+Use todas as suas habilidades para projetar e desenvolver o sistema da melhor forma 
+possível. Tudo será avaliado! 
+O escopo é aberto propositalmente para que você invista todas as ferramentas, tecnologias 
+e criatividade que achar necessário. 
