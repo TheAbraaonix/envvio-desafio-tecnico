@@ -5,7 +5,7 @@ import { catchError, throwError } from 'rxjs';
 export const errorInterceptor: HttpInterceptorFn = (req, next) => {
   return next(req).pipe(
     catchError((error: HttpErrorResponse) => {
-      let errorMessage = 'An unexpected error occurred';
+      let errorMessage = 'Um erro desconhecido ocorreu.';
 
       if (error.error instanceof ErrorEvent) {
         // Client-side or network error
@@ -13,7 +13,7 @@ export const errorInterceptor: HttpInterceptorFn = (req, next) => {
       } else {
         // Backend returned an unsuccessful response code
         if (error.status === 0) {
-          errorMessage = 'Unable to connect to the server. Please check your internet connection.';
+            errorMessage = 'Unable to connect to the server. Please check your internet connection.';
         } else if (error.error?.message) {
           // API returned a structured error message
           errorMessage = error.error.message;
