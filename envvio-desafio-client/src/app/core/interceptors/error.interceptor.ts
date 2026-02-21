@@ -1,8 +1,11 @@
 import { HttpErrorResponse, HttpInterceptorFn } from '@angular/common/http';
 import { inject } from '@angular/core';
 import { catchError, throwError } from 'rxjs';
+import { ErrorTranslationService } from '../services/error-translation.service';
 
 export const errorInterceptor: HttpInterceptorFn = (req, next) => {
+  const errorTranslation = inject(ErrorTranslationService);
+  
   return next(req).pipe(
     catchError((error: HttpErrorResponse) => {
       let errorMessage = 'Um erro desconhecido ocorreu.';
@@ -13,10 +16,10 @@ export const errorInterceptor: HttpInterceptorFn = (req, next) => {
       } else {
         // Backend returned an unsuccessful response code
         if (error.status === 0) {
-            errorMessage = 'Unable to connect to the server. Please check your internet connection.';
+            errorMessage = 'Não foi possível conectar ao servidor. Verifique sua conexão com a internet.';
         } else if (error.error?.message) {
-          // API returned a structured error message
-          errorMessage = error.error.message;
+          // API returned a structured error message - translate it
+          errorMessage = errorTranslation.translateError(error.error.message);
         } else {
           errorMessage = `Server Error: ${error.status} - ${error.statusText}`;
         }
@@ -28,8 +31,6 @@ export const errorInterceptor: HttpInterceptorFn = (req, next) => {
         url: error.url,
         details: error.error
       });
-
-      // TODO: Add toast/snackbar notification here when we implement UI notifications
       
       return throwError(() => new Error(errorMessage));
     })
