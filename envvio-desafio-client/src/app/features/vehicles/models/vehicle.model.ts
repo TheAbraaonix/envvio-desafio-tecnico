@@ -3,6 +3,17 @@ export enum VehicleType {
   Motorcycle = 'Motorcycle'
 }
 
+// Translation maps for Vehicle Type
+export const VehicleTypeDisplay: { [key in VehicleType]: string } = {
+  [VehicleType.Car]: 'Carro',
+  [VehicleType.Motorcycle]: 'Moto'
+};
+
+export const VehicleTypeFromDisplay: { [key: string]: VehicleType } = {
+  'Carro': VehicleType.Car,
+  'Moto': VehicleType.Motorcycle
+};
+
 export interface Vehicle {
   id: number;
   plate: string;

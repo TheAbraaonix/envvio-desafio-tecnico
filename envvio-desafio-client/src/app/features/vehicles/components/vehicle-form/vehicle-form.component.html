@@ -1,0 +1,72 @@
+<h2 mat-dialog-title>{{ isEditMode ? 'Editar Veículo' : 'Novo Veículo' }}</h2>
+
+<mat-dialog-content>
+  <form [formGroup]="vehicleForm">
+    
+    <!-- License Plate Field -->
+    <mat-form-field appearance="outline" class="full-width">
+      <mat-label>Placa</mat-label>
+      <input matInput formControlName="plate" placeholder="ABC1234" maxlength="7" 
+             [readonly]="isEditMode" (input)="plate?.setValue(plate?.value.toUpperCase())">
+      <mat-hint *ngIf="!isEditMode">7 caracteres (letras e números)</mat-hint>
+      <mat-error *ngIf="plate?.hasError('required')">
+        Placa é obrigatória
+      </mat-error>
+      <mat-error *ngIf="plate?.hasError('minlength') || plate?.hasError('maxlength')">
+        Placa deve ter exatamente 7 caracteres
+      </mat-error>
+      <mat-error *ngIf="plate?.hasError('pattern')">
+        Apenas letras maiúsculas e números são permitidos
+      </mat-error>
+    </mat-form-field>
+
+    <!-- Model Field -->
+    <mat-form-field appearance="outline" class="full-width">
+      <mat-label>Modelo</mat-label>
+      <input matInput formControlName="model" placeholder="Toyota Corolla" maxlength="100">
+      <mat-hint>Modelo do veículo (máx 100 caracteres)</mat-hint>
+      <mat-error *ngIf="model?.hasError('required')">
+        Modelo é obrigatório
+      </mat-error>
+      <mat-error *ngIf="model?.hasError('maxlength')">
+        Modelo não pode exceder 100 caracteres
+      </mat-error>
+    </mat-form-field>
+
+    <!-- Color Field -->
+    <mat-form-field appearance="outline" class="full-width">
+      <mat-label>Cor</mat-label>
+      <input matInput formControlName="color" placeholder="Preto" maxlength="50">
+      <mat-hint>Cor do veículo (opcional, máx 50 caracteres)</mat-hint>
+      <mat-error *ngIf="color?.hasError('maxlength')">
+        Cor não pode exceder 50 caracteres
+      </mat-error>
+    </mat-form-field>
+
+    <!-- Type Field -->
+    <mat-form-field appearance="outline" class="full-width">
+      <mat-label>Tipo de Veículo</mat-label>
+      <mat-select formControlName="type">
+        <mat-option *ngFor="let type of vehicleTypes" [value]="type">
+          {{ type }}
+        </mat-option>
+      </mat-select>
+      <mat-error *ngIf="type?.hasError('required')">
+        Tipo de veículo é obrigatório
+      </mat-error>
+    </mat-form-field>
+
+  </form>
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+  <button mat-button (click)="onCancel()" [disabled]="isSubmitting">
+    Cancelar
+  </button>
+  <button mat-raised-button color="primary" (click)="onSubmit()" [disabled]="isSubmitting">
+    <mat-icon *ngIf="isSubmitting">
+      <mat-spinner diameter="20"></mat-spinner>
+    </mat-icon>
+    {{ isEditMode ? 'Atualizar' : 'Criar' }}
+  </button>
+</mat-dialog-actions>

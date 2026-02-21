@@ -8,6 +8,6 @@ import { ROUTE_PATHS } from './app.paths';
   styleUrl: './app.component.scss'
 })
 export class AppComponent {
-  title = 'Parking Management System';
+  title = 'Sistema de Gerenciamento de Estacionamento';
   routePaths = ROUTE_PATHS;
 }

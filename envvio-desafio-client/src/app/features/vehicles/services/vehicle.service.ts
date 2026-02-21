@@ -12,7 +12,8 @@ import { Vehicle, CreateVehicleDto, UpdateVehicleDto } from '../models/vehicle.m
 export class VehicleService {
   private readonly baseUrl = `${environment.apiUrl}${API_ENDPOINTS.vehicles}`;
 
-  constructor(private http: HttpClient) { }
+  constructor(private http: HttpClient) {
+  }
 
   getAll(): Observable<ApiResponse<Vehicle[]>> {
     return this.http.get<ApiResponse<Vehicle[]>>(this.baseUrl);

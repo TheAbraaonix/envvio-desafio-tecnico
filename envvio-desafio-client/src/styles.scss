@@ -2,3 +2,49 @@
 
 html, body { height: 100%; }
 body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
+
+/* Fix for Material form field floating labels being clipped */
+.mat-mdc-form-field {
+  overflow: visible !important;
+}
+
+.mat-mdc-text-field-wrapper {
+  overflow: visible !important;
+}
+
+.mat-mdc-form-field-flex {
+  overflow: visible !important;
+}
+
+/* Fix for outline notch clipping the floating label */
+.mdc-notched-outline {
+  overflow: visible !important;
+}
+
+.mdc-notched-outline__notch {
+  overflow: visible !important;
+  padding-top: 4px !important;
+  border-top: none !important;
+}
+
+/* Ensure the floating label has enough space */
+.mat-mdc-floating-label {
+  overflow: visible !important;
+  white-space: nowrap !important;
+}
+
+/* Additional padding for the label when floating */
+.mdc-floating-label--float-above {
+  padding-top: 2px !important;
+}
+
+/* Snackbar styles */
+.success-snackbar {
+  background-color: #4caf50 !important;
+  color: white !important;
+}
+
+.error-snackbar {
+  background-color: #f44336 !important;
+  color: white !important;
+}
