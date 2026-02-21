@@ -8,5 +8,6 @@ public interface IParkingOperationService
     Task<ExitPreviewDto> PreviewExitByPlateAsync(string plate);
     Task<ParkingSessionDto> RegisterExitAsync(RegisterExitDto dto);
     Task<IEnumerable<ParkingSessionDto>> GetAllOpenSessionsAsync();
+    Task<IEnumerable<ParkingSessionDto>> GetAllOpenSessionsAsync(string? plateFilter = null);
     Task<ParkingSessionDto?> GetSessionByIdAsync(int id);
 }

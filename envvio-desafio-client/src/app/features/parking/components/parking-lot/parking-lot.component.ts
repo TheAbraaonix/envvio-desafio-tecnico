@@ -5,6 +5,8 @@ import { ParkingSession } from '../../models/parking-session.model';
 import { EntryDialogComponent } from '../entry-dialog/entry-dialog.component';
 import { ExitDialogComponent } from '../exit-dialog/exit-dialog.component';
 import { formatLocalTime, calculateDuration, getVehicleTypeDisplay } from '../../../../shared/utils';
+import { Subject } from 'rxjs';
+import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
 
 @Component({
   selector: 'app-parking-lot',
@@ -17,6 +19,8 @@ export class ParkingLotComponent implements OnInit, OnDestroy {
   displayedColumns: string[] = ['plate', 'model', 'type', 'entryTime', 'duration', 'actions'];
   isLoading = false;
   errorMessage = '';
+  searchQuery = '';
+  private searchSubject = new Subject<string>();
   private durationUpdateInterval: any;
 
   constructor(
@@ -27,6 +31,14 @@ export class ParkingLotComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
     this.loadSessions();
 
+    // Setup search with debounce
+    this.searchSubject.pipe(
+      debounceTime(500),
+      distinctUntilChanged()
+    ).subscribe(query => {
+      this.loadSessions(query);
+    });
+
     this.durationUpdateInterval = setInterval(() => {
       this.sessions = [...this.sessions];
     }, 60000);
@@ -36,13 +48,19 @@ export class ParkingLotComponent implements OnInit, OnDestroy {
     if (this.durationUpdateInterval) {
       clearInterval(this.durationUpdateInterval);
     }
+    this.searchSubject.complete();
   }
 
-  loadSessions(): void {
+  onSearchChange(query: string): void {
+    this.searchQuery = query;
+    this.searchSubject.next(query);
+  }
+
+  loadSessions(plateFilter?: string): void {
     this.isLoading = true;
     this.errorMessage = '';
 
-    this.parkingService.getCurrentSessions().subscribe({
+    this.parkingService.getCurrentSessions(plateFilter).subscribe({
       next: (response) => {
         this.sessions = response.data || [];
         this.isLoading = false;

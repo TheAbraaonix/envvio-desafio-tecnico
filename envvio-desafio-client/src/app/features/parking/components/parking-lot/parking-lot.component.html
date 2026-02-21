@@ -11,6 +11,25 @@
     </mat-card-header>
 
     <mat-card-content>
+      <!-- Search Bar -->
+      <mat-form-field appearance="outline" class="search-field">
+        <mat-label>Buscar por placa</mat-label>
+        <input matInput 
+               type="text" 
+               [(ngModel)]="searchQuery" 
+               (input)="onSearchChange(searchQuery)"
+               placeholder="Digite a placa..."
+               maxlength="7">
+        <mat-icon matPrefix>search</mat-icon>
+        <button *ngIf="searchQuery" 
+                mat-icon-button 
+                matSuffix 
+                (click)="searchQuery = ''; onSearchChange('')"
+                matTooltip="Limpar busca">
+          <mat-icon>close</mat-icon>
+        </button>
+      </mat-form-field>
+
       <!-- Error Message -->
       <div *ngIf="errorMessage" class="error-message">
         <mat-icon>error</mat-icon>
@@ -81,8 +100,8 @@
       <!-- Empty State -->
       <div *ngIf="!isLoading && sessions.length === 0 && !errorMessage" class="empty-state">
         <mat-icon>local_parking</mat-icon>
-        <h3>Nenhum Veículo no Pátio</h3>
-        <p>Clique em "Registrar Entrada" para adicionar um veículo</p>
+        <h3>{{ searchQuery ? 'Nenhum Veículo Encontrado' : 'Nenhum Veículo no Pátio' }}</h3>
+        <p>{{ searchQuery ? 'Tente buscar por outra placa' : 'Clique em "Registrar Entrada" para adicionar um veículo' }}</p>
       </div>
     </mat-card-content>
   </mat-card>

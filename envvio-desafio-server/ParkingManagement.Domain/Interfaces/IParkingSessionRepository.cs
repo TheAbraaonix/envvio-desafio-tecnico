@@ -7,6 +7,7 @@ public interface IParkingSessionRepository
     Task<ParkingSession?> GetByIdAsync(int id);
     Task<ParkingSession?> GetOpenSessionByVehicleIdAsync(int vehicleId);
     Task<IEnumerable<ParkingSession>> GetAllOpenSessionsAsync();
+    Task<IEnumerable<ParkingSession>> GetAllOpenSessionsAsync(string? plateFilter = null);
     Task<IEnumerable<ParkingSession>> GetSessionsByVehicleIdAsync(int vehicleId);
     Task<ParkingSession> AddAsync(ParkingSession session);
     Task UpdateAsync(ParkingSession session);

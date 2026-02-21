@@ -38,6 +38,24 @@ public class ParkingSessionRepository : IParkingSessionRepository
             .ToListAsync();
     }
 
+    public async Task<IEnumerable<ParkingSession>> GetAllOpenSessionsAsync(string? plateFilter = null)
+    {
+        var query = _context.ParkingSessions
+            .AsNoTracking()
+            .Include(ps => ps.Vehicle)
+            .Where(ps => ps.ExitTime == null);
+
+        if (!string.IsNullOrWhiteSpace(plateFilter))
+        {
+            var normalizedFilter = plateFilter.ToUpperInvariant().Trim();
+            query = query.Where(ps => ps.Vehicle!.Plate.Contains(normalizedFilter));
+        }
+
+        return await query
+            .OrderBy(ps => ps.EntryTime) // Oldest first = Longest duration first
+            .ToListAsync();
+    }
+
     public async Task<IEnumerable<ParkingSession>> GetSessionsByVehicleIdAsync(int vehicleId)
     {
         return await _context.ParkingSessions

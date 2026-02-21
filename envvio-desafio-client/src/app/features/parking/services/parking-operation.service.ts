@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import { API_ENDPOINTS } from '../../../core/constants/api.constants';
@@ -14,8 +14,12 @@ export class ParkingOperationService {
 
   constructor(private http: HttpClient) { }
 
-  getCurrentSessions(): Observable<ApiResponse<ParkingSession[]>> {
-    return this.http.get<ApiResponse<ParkingSession[]>>(`${this.baseUrl}/open-sessions`);
+  getCurrentSessions(plateFilter?: string): Observable<ApiResponse<ParkingSession[]>> {
+    let params = new HttpParams();
+    if (plateFilter) {
+      params = params.set('plate', plateFilter);
+    }
+    return this.http.get<ApiResponse<ParkingSession[]>>(`${this.baseUrl}/open-sessions`, { params });
   }
 
   registerEntry(dto: RegisterEntryDto): Observable<ApiResponse<ParkingSession>> {

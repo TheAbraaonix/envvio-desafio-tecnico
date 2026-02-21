@@ -18,9 +18,9 @@ public class ParkingOperationsController : ControllerBase
     }
 
     [HttpGet("open-sessions")]
-    public async Task<ActionResult<ApiResponse<IEnumerable<ParkingSessionDto>>>> GetOpenSessions()
+    public async Task<ActionResult<ApiResponse<IEnumerable<ParkingSessionDto>>>> GetOpenSessions([FromQuery] string? plate = null)
     {
-        var sessions = await _parkingOperationService.GetAllOpenSessionsAsync();
+        var sessions = await _parkingOperationService.GetAllOpenSessionsAsync(plate);
         return Ok(ApiResponse<IEnumerable<ParkingSessionDto>>.SuccessResponse(sessions, "Open sessions retrieved successfully"));
     }
 

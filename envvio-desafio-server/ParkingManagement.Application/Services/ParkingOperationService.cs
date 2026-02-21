@@ -94,6 +94,12 @@ public class ParkingOperationService : IParkingOperationService
         return _mapper.Map<IEnumerable<ParkingSessionDto>>(sessions);
     }
 
+    public async Task<IEnumerable<ParkingSessionDto>> GetAllOpenSessionsAsync(string? plateFilter = null)
+    {
+        var sessions = await _sessionRepository.GetAllOpenSessionsAsync(plateFilter);
+        return _mapper.Map<IEnumerable<ParkingSessionDto>>(sessions);
+    }
+
     public async Task<ParkingSessionDto?> GetSessionByIdAsync(int id)
     {
         var session = await _sessionRepository.GetByIdAsync(id);
