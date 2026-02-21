@@ -2,10 +2,11 @@ import { NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { RouterModule } from '@angular/router';
-import { provideHttpClient } from '@angular/common/http';
+import { provideHttpClient, withInterceptors } from '@angular/common/http';
 
 import { AppComponent } from './app.component';
 import { routes } from './app.routes';
+import { errorInterceptor } from './core/interceptors/error.interceptor';
 
 // Material imports for AppComponent
 import { MatToolbarModule } from '@angular/material/toolbar';
@@ -30,7 +31,9 @@ import { MatListModule } from '@angular/material/list';
     MatListModule
   ],
   providers: [
-    provideHttpClient()
+    provideHttpClient(
+      withInterceptors([errorInterceptor])
+    )
   ],
   bootstrap: [AppComponent]
 })
