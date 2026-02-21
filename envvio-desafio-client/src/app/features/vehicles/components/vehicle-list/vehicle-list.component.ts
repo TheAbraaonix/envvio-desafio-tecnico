@@ -1,7 +1,10 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewChild } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
+import { MatPaginator, PageEvent } from '@angular/material/paginator';
+import { MatSort, Sort } from '@angular/material/sort';
 import { VehicleService } from '../../services/vehicle.service';
 import { Vehicle } from '../../models/vehicle.model';
+import { PaginationParams, PaginatedResult } from '../../../../core/models/pagination.model';
 import { VehicleFormComponent } from '../vehicle-form/vehicle-form.component';
 import { ConfirmationDialogComponent } from '../../../../core/components/confirmation-dialog/confirmation-dialog.component';
 import { getVehicleTypeDisplay } from '../../../../shared/utils';
@@ -13,10 +16,26 @@ import { getVehicleTypeDisplay } from '../../../../shared/utils';
   styleUrl: './vehicle-list.component.scss'
 })
 export class VehicleListComponent implements OnInit {
+  @ViewChild(MatPaginator) paginator!: MatPaginator;
+  @ViewChild(MatSort) sort!: MatSort;
+
   vehicles: Vehicle[] = [];
   displayedColumns: string[] = ['plate', 'model', 'color', 'type', 'actions'];
   isLoading = false;
   errorMessage = '';
+
+  // Pagination
+  totalCount = 0;
+  currentPage = 1;
+  pageSize = 10;
+  pageSizeOptions = [5, 10, 20, 50];
+  
+  // Sorting
+  sortBy: string = 'plate';
+  sortOrder: 'asc' | 'desc' = 'asc';
+
+  // Filter
+  plateFilter = '';
 
   constructor(
     private vehicleService: VehicleService,
@@ -34,9 +53,18 @@ export class VehicleListComponent implements OnInit {
     this.isLoading = true;
     this.errorMessage = '';
 
-    this.vehicleService.getAll().subscribe({
+    const paginationParams: PaginationParams = {
+      page: this.currentPage,
+      pageSize: this.pageSize,
+      sortBy: this.sortBy,
+      sortOrder: this.sortOrder
+    };
+
+    this.vehicleService.getAllPaginated(paginationParams, this.plateFilter || undefined).subscribe({
       next: (response) => {
-        this.vehicles = response.data || [];
+        const paginatedData = response.data as PaginatedResult<Vehicle>;
+        this.vehicles = paginatedData.data || [];
+        this.totalCount = paginatedData.totalCount;
         this.isLoading = false;
       },
       error: (error) => {
@@ -45,6 +73,37 @@ export class VehicleListComponent implements OnInit {
         console.error('Error loading vehicles:', error);
       }
     });
+  }
+
+  onPageChange(event: PageEvent): void {
+    this.currentPage = event.pageIndex + 1; // Material paginator is 0-indexed
+    this.pageSize = event.pageSize;
+    this.loadVehicles();
+  }
+
+  onSortChange(sort: Sort): void {
+    // Manual toggle logic: if clicking same column, toggle direction
+    if (sort.active === this.sortBy) {
+      this.sortOrder = this.sortOrder === 'asc' ? 'desc' : 'asc';
+    } else {
+      // New column, start with asc
+      this.sortBy = sort.active;
+      this.sortOrder = 'asc';
+    }
+    
+    this.currentPage = 1;
+    this.loadVehicles();
+  }
+
+  onFilterChange(): void {
+    this.currentPage = 1; // Reset to first page when filter changes
+    this.loadVehicles();
+  }
+
+  clearFilter(): void {
+    this.plateFilter = '';
+    this.currentPage = 1;
+    this.loadVehicles();
   }
 
   openCreateDialog(): void {

@@ -44,23 +44,23 @@
 
       <!-- Sessions Table -->
       <div *ngIf="!isLoading && sessions.length > 0" class="table-container">
-        <table mat-table [dataSource]="sessions" class="sessions-table">
+        <table mat-table [dataSource]="sessions" matSort [matSortActive]="sortBy === 'entrytime' ? 'entryTime' : sortBy" [matSortDirection]="sortOrder" (matSortChange)="onSortChange($event)" class="sessions-table">
           
           <!-- Plate Column -->
           <ng-container matColumnDef="plate">
-            <th mat-header-cell *matHeaderCellDef>Placa</th>
+            <th mat-header-cell *matHeaderCellDef mat-sort-header>Placa</th>
             <td mat-cell *matCellDef="let session">{{ session.vehicle?.plate }}</td>
           </ng-container>
 
           <!-- Model Column -->
           <ng-container matColumnDef="model">
-            <th mat-header-cell *matHeaderCellDef>Modelo</th>
+            <th mat-header-cell *matHeaderCellDef mat-sort-header>Modelo</th>
             <td mat-cell *matCellDef="let session">{{ session.vehicle?.model }}</td>
           </ng-container>
 
           <!-- Type Column -->
           <ng-container matColumnDef="type">
-            <th mat-header-cell *matHeaderCellDef>Tipo</th>
+            <th mat-header-cell *matHeaderCellDef mat-sort-header>Tipo</th>
             <td mat-cell *matCellDef="let session">
               <mat-chip>{{ getVehicleTypeDisplay(session.vehicle?.type) }}</mat-chip>
             </td>
@@ -68,7 +68,7 @@
 
           <!-- Entry Time Column -->
           <ng-container matColumnDef="entryTime">
-            <th mat-header-cell *matHeaderCellDef>Horário de Entrada</th>
+            <th mat-header-cell *matHeaderCellDef mat-sort-header>Horário de Entrada</th>
             <td mat-cell *matCellDef="let session">{{ formatLocalTime(session.entryTime) }}</td>
           </ng-container>
 
@@ -95,6 +95,17 @@
           <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
           <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
         </table>
+
+        <!-- Paginator -->
+        <mat-paginator 
+          [length]="totalCount"
+          [pageSize]="pageSize"
+          [pageIndex]="currentPage - 1"
+          [pageSizeOptions]="pageSizeOptions"
+          (page)="onPageChange($event)"
+          showFirstLastButtons
+          aria-label="Selecione a página de sessões">
+        </mat-paginator>
       </div>
 
       <!-- Empty State -->

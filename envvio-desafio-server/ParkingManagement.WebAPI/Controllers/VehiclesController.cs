@@ -18,8 +18,29 @@ public class VehiclesController : ControllerBase
     }
 
     [HttpGet]
-    public async Task<ActionResult<ApiResponse<IEnumerable<VehicleDto>>>> GetAll()
+    public async Task<ActionResult<ApiResponse<IEnumerable<VehicleDto>>>> GetAll(
+        [FromQuery] int? page = null,
+        [FromQuery] int? pageSize = null,
+        [FromQuery] string? plate = null,
+        [FromQuery] string? sortBy = null,
+        [FromQuery] string? sortOrder = null)
     {
+        // If pagination params provided, return paginated results
+        if (page.HasValue)
+        {
+            var paginationParams = new PaginationParams
+            {
+                Page = page.Value,
+                PageSize = pageSize ?? 20,
+                SortBy = sortBy,
+                SortOrder = sortOrder ?? "asc"
+            };
+
+            var paginatedVehicles = await _vehicleService.GetVehiclesPaginatedAsync(paginationParams, plate);
+            return Ok(ApiResponse<PaginatedResult<VehicleDto>>.SuccessResponse(paginatedVehicles, "Vehicles retrieved successfully"));
+        }
+
+        // Otherwise return all vehicles (backward compatibility)
         var vehicles = await _vehicleService.GetAllVehiclesAsync();
         return Ok(ApiResponse<IEnumerable<VehicleDto>>.SuccessResponse(vehicles, "Vehicles retrieved successfully"));
     }

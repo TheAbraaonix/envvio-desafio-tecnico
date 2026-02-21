@@ -19,6 +19,18 @@ mat-card-header {
   margin-left: auto;
 }
 
+.filter-section {
+  display: flex;
+  gap: 16px;
+  align-items: center;
+  margin-bottom: 20px;
+
+  .filter-input {
+    flex: 1;
+    max-width: 400px;
+  }
+}
+
 .error-message {
   display: flex;
   align-items: center;

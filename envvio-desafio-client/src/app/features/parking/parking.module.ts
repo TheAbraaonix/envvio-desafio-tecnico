@@ -17,6 +17,8 @@ import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatChipsModule } from '@angular/material/chips';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatDividerModule } from '@angular/material/divider';
+import { MatPaginatorModule } from '@angular/material/paginator';
+import { MatSortModule } from '@angular/material/sort';
 
 // Components
 import { ParkingLotComponent } from './components/parking-lot/parking-lot.component';
@@ -53,7 +55,9 @@ const routes: Routes = [
     MatSnackBarModule,
     MatChipsModule,
     MatTooltipModule,
-    MatDividerModule
+    MatDividerModule,
+    MatPaginatorModule,
+    MatSortModule
   ]
 })
 export class ParkingModule { }

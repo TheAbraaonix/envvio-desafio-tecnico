@@ -1,4 +1,5 @@
 using AutoMapper;
+using ParkingManagement.Application.Common;
 using ParkingManagement.Application.DTOs;
 using ParkingManagement.Application.Interfaces;
 using ParkingManagement.Domain.Entities;
@@ -98,6 +99,20 @@ public class ParkingOperationService : IParkingOperationService
     {
         var sessions = await _sessionRepository.GetAllOpenSessionsAsync(plateFilter);
         return _mapper.Map<IEnumerable<ParkingSessionDto>>(sessions);
+    }
+
+    public async Task<PaginatedResult<ParkingSessionDto>> GetOpenSessionsPaginatedAsync(PaginationParams paginationParams, string? plateFilter = null)
+    {
+        var (sessions, totalCount) = await _sessionRepository.GetAllOpenSessionsPaginatedAsync(
+            paginationParams.Skip,
+            paginationParams.PageSize,
+            plateFilter,
+            paginationParams.SortBy,
+            paginationParams.SortOrder
+        );
+
+        var sessionDtos = _mapper.Map<IEnumerable<ParkingSessionDto>>(sessions);
+        return PaginatedResult<ParkingSessionDto>.Create(sessionDtos, totalCount, paginationParams);
     }
 
     public async Task<ParkingSessionDto?> GetSessionByIdAsync(int id)

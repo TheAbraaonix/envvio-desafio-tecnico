@@ -33,6 +33,62 @@ public class VehicleRepository : IVehicleRepository
             .ToListAsync();
     }
 
+    public async Task<(IEnumerable<Vehicle> Vehicles, int TotalCount)> GetAllPaginatedAsync(
+        int skip,
+        int take,
+        string? plateFilter = null,
+        string? sortBy = null,
+        string sortOrder = "asc")
+    {
+        var query = _context.Vehicles.AsNoTracking();
+
+        // Apply plate filter
+        if (!string.IsNullOrWhiteSpace(plateFilter))
+        {
+            var normalizedFilter = plateFilter.ToUpperInvariant().Trim();
+            query = query.Where(v => v.Plate.Contains(normalizedFilter));
+        }
+
+        // Get total count before pagination
+        var totalCount = await query.CountAsync();
+
+        // Apply sorting
+        query = ApplySorting(query, sortBy, sortOrder);
+
+        // Apply pagination
+        var vehicles = await query
+            .Skip(skip)
+            .Take(take)
+            .ToListAsync();
+
+        return (vehicles, totalCount);
+    }
+
+    private IQueryable<Vehicle> ApplySorting(IQueryable<Vehicle> query, string? sortBy, string sortOrder)
+    {
+        var isDescending = sortOrder.ToLower() == "desc";
+
+        return sortBy?.ToLower() switch
+        {
+            "plate" => isDescending
+                ? query.OrderByDescending(v => v.Plate)
+                : query.OrderBy(v => v.Plate),
+            "model" => isDescending
+                ? query.OrderByDescending(v => v.Model)
+                : query.OrderBy(v => v.Model),
+            "color" => isDescending
+                ? query.OrderByDescending(v => v.Color)
+                : query.OrderBy(v => v.Color),
+            "type" => isDescending
+                ? query.OrderByDescending(v => v.Type)
+                : query.OrderBy(v => v.Type),
+            "createdat" => isDescending
+                ? query.OrderByDescending(v => v.CreatedAt)
+                : query.OrderBy(v => v.CreatedAt),
+            _ => query.OrderBy(v => v.Plate) // Default: alphabetical by plate
+        };
+    }
+
     public async Task<Vehicle> AddAsync(Vehicle vehicle)
     {
         await _context.Vehicles.AddAsync(vehicle);
@@ -40,10 +96,11 @@ public class VehicleRepository : IVehicleRepository
         return vehicle;
     }
 
-    public async Task UpdateAsync(Vehicle vehicle)
+    public async Task<Vehicle> UpdateAsync(Vehicle vehicle)
     {
         _context.Vehicles.Update(vehicle);
         await _context.SaveChangesAsync();
+        return vehicle;
     }
 
     public async Task DeleteAsync(int id)

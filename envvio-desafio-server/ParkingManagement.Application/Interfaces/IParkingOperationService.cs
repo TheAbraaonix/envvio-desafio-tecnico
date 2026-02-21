@@ -1,3 +1,4 @@
+using ParkingManagement.Application.Common;
 using ParkingManagement.Application.DTOs;
 
 namespace ParkingManagement.Application.Interfaces;
@@ -9,5 +10,6 @@ public interface IParkingOperationService
     Task<ParkingSessionDto> RegisterExitAsync(RegisterExitDto dto);
     Task<IEnumerable<ParkingSessionDto>> GetAllOpenSessionsAsync();
     Task<IEnumerable<ParkingSessionDto>> GetAllOpenSessionsAsync(string? plateFilter = null);
+    Task<PaginatedResult<ParkingSessionDto>> GetOpenSessionsPaginatedAsync(PaginationParams paginationParams, string? plateFilter = null);
     Task<ParkingSessionDto?> GetSessionByIdAsync(int id);
 }

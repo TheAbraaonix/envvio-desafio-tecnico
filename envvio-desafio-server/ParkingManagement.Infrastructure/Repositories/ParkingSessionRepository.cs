@@ -56,6 +56,62 @@ public class ParkingSessionRepository : IParkingSessionRepository
             .ToListAsync();
     }
 
+    public async Task<(IEnumerable<ParkingSession> Sessions, int TotalCount)> GetAllOpenSessionsPaginatedAsync(
+        int skip,
+        int take,
+        string? plateFilter = null,
+        string? sortBy = null,
+        string sortOrder = "asc")
+    {
+        var query = _context.ParkingSessions
+            .AsNoTracking()
+            .Include(ps => ps.Vehicle)
+            .Where(ps => ps.ExitTime == null);
+
+        // Apply plate filter
+        if (!string.IsNullOrWhiteSpace(plateFilter))
+        {
+            var normalizedFilter = plateFilter.ToUpperInvariant().Trim();
+            query = query.Where(ps => ps.Vehicle!.Plate.Contains(normalizedFilter));
+        }
+
+        // Get total count before pagination
+        var totalCount = await query.CountAsync();
+
+        // Apply sorting
+        query = ApplySorting(query, sortBy, sortOrder);
+
+        // Apply pagination
+        var sessions = await query
+            .Skip(skip)
+            .Take(take)
+            .ToListAsync();
+
+        return (sessions, totalCount);
+    }
+
+    private IQueryable<ParkingSession> ApplySorting(IQueryable<ParkingSession> query, string? sortBy, string sortOrder)
+    {
+        var isDescending = sortOrder.ToLower() == "desc";
+
+        return sortBy?.ToLower() switch
+        {
+            "plate" => isDescending 
+                ? query.OrderByDescending(ps => ps.Vehicle!.Plate)
+                : query.OrderBy(ps => ps.Vehicle!.Plate),
+            "entrytime" => isDescending
+                ? query.OrderByDescending(ps => ps.EntryTime)
+                : query.OrderBy(ps => ps.EntryTime),
+            "model" => isDescending
+                ? query.OrderByDescending(ps => ps.Vehicle!.Model)
+                : query.OrderBy(ps => ps.Vehicle!.Model),
+            "type" => isDescending
+                ? query.OrderByDescending(ps => ps.Vehicle!.Type)
+                : query.OrderBy(ps => ps.Vehicle!.Type),
+            _ => query.OrderBy(ps => ps.EntryTime) // Default: oldest first
+        };
+    }
+
     public async Task<IEnumerable<ParkingSession>> GetSessionsByVehicleIdAsync(int vehicleId)
     {
         return await _context.ParkingSessions

@@ -1,4 +1,5 @@
 using AutoMapper;
+using ParkingManagement.Application.Common;
 using ParkingManagement.Application.DTOs;
 using ParkingManagement.Application.Interfaces;
 using ParkingManagement.Domain.Entities;
@@ -57,6 +58,20 @@ public class VehicleService : IVehicleService
     {
         var vehicles = await _vehicleRepository.GetAllAsync();
         return _mapper.Map<IEnumerable<VehicleDto>>(vehicles);
+    }
+
+    public async Task<PaginatedResult<VehicleDto>> GetVehiclesPaginatedAsync(PaginationParams paginationParams, string? plateFilter = null)
+    {
+        var (vehicles, totalCount) = await _vehicleRepository.GetAllPaginatedAsync(
+            paginationParams.Skip,
+            paginationParams.PageSize,
+            plateFilter,
+            paginationParams.SortBy,
+            paginationParams.SortOrder
+        );
+
+        var vehicleDtos = _mapper.Map<IEnumerable<VehicleDto>>(vehicles);
+        return PaginatedResult<VehicleDto>.Create(vehicleDtos, totalCount, paginationParams);
     }
 
     public async Task DeleteVehicleAsync(int id)

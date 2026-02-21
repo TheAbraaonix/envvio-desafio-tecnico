@@ -1,7 +1,10 @@
-import { Component, OnDestroy, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
+import { MatPaginator, PageEvent } from '@angular/material/paginator';
+import { MatSort, Sort } from '@angular/material/sort';
 import { ParkingOperationService } from '../../services/parking-operation.service';
 import { ParkingSession } from '../../models/parking-session.model';
+import { PaginationParams, PaginatedResult } from '../../../../core/models/pagination.model';
 import { EntryDialogComponent } from '../entry-dialog/entry-dialog.component';
 import { ExitDialogComponent } from '../exit-dialog/exit-dialog.component';
 import { formatLocalTime, calculateDuration, getVehicleTypeDisplay } from '../../../../shared/utils';
@@ -15,6 +18,9 @@ import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
   styleUrl: './parking-lot.component.scss'
 })
 export class ParkingLotComponent implements OnInit, OnDestroy {
+  @ViewChild(MatPaginator) paginator!: MatPaginator;
+  @ViewChild(MatSort) sort!: MatSort;
+
   sessions: ParkingSession[] = [];
   displayedColumns: string[] = ['plate', 'model', 'type', 'entryTime', 'duration', 'actions'];
   isLoading = false;
@@ -22,6 +28,16 @@ export class ParkingLotComponent implements OnInit, OnDestroy {
   searchQuery = '';
   private searchSubject = new Subject<string>();
   private durationUpdateInterval: any;
+
+  // Pagination
+  totalCount = 0;
+  currentPage = 1;
+  pageSize = 10;
+  pageSizeOptions = [5, 10, 20, 50];
+
+  // Sorting
+  sortBy: string = 'entrytime';
+  sortOrder: 'asc' | 'desc' = 'asc';
 
   constructor(
     private parkingService: ParkingOperationService,
@@ -60,9 +76,18 @@ export class ParkingLotComponent implements OnInit, OnDestroy {
     this.isLoading = true;
     this.errorMessage = '';
 
-    this.parkingService.getCurrentSessions(plateFilter).subscribe({
+    const paginationParams: PaginationParams = {
+      page: this.currentPage,
+      pageSize: this.pageSize,
+      sortBy: this.sortBy,
+      sortOrder: this.sortOrder
+    };
+
+    this.parkingService.getCurrentSessionsPaginated(paginationParams, plateFilter).subscribe({
       next: (response) => {
-        this.sessions = response.data || [];
+        const paginatedData = response.data as PaginatedResult<ParkingSession>;
+        this.sessions = paginatedData.data || [];
+        this.totalCount = paginatedData.totalCount;
         this.isLoading = false;
       },
       error: (error) => {
@@ -71,6 +96,29 @@ export class ParkingLotComponent implements OnInit, OnDestroy {
         console.error('Error loading sessions:', error);
       }
     });
+  }
+
+  onPageChange(event: PageEvent): void {
+    this.currentPage = event.pageIndex + 1;
+    this.pageSize = event.pageSize;
+    this.loadSessions(this.searchQuery || undefined);
+  }
+
+  onSortChange(sort: Sort): void {
+    // Map column name for API
+    const columnName = sort.active === 'entryTime' ? 'entrytime' : sort.active;
+    
+    // Manual toggle logic: if clicking same column, toggle direction
+    if (columnName === this.sortBy) {
+      this.sortOrder = this.sortOrder === 'asc' ? 'desc' : 'asc';
+    } else {
+      // New column, start with asc
+      this.sortBy = columnName;
+      this.sortOrder = 'asc';
+    }
+    
+    this.currentPage = 1;
+    this.loadSessions(this.searchQuery || undefined);
   }
 
   // Expose utility functions to template

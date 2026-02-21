@@ -18,8 +18,29 @@ public class ParkingOperationsController : ControllerBase
     }
 
     [HttpGet("open-sessions")]
-    public async Task<ActionResult<ApiResponse<IEnumerable<ParkingSessionDto>>>> GetOpenSessions([FromQuery] string? plate = null)
+    public async Task<ActionResult<ApiResponse<IEnumerable<ParkingSessionDto>>>> GetOpenSessions(
+        [FromQuery] int? page = null,
+        [FromQuery] int? pageSize = null,
+        [FromQuery] string? plate = null,
+        [FromQuery] string? sortBy = null,
+        [FromQuery] string? sortOrder = null)
     {
+        // If pagination params provided, return paginated results
+        if (page.HasValue)
+        {
+            var paginationParams = new PaginationParams
+            {
+                Page = page.Value,
+                PageSize = pageSize ?? 20,
+                SortBy = sortBy,
+                SortOrder = sortOrder ?? "asc"
+            };
+
+            var paginatedSessions = await _parkingOperationService.GetOpenSessionsPaginatedAsync(paginationParams, plate);
+            return Ok(ApiResponse<PaginatedResult<ParkingSessionDto>>.SuccessResponse(paginatedSessions, "Open sessions retrieved successfully"));
+        }
+
+        // Otherwise return all open sessions (backward compatibility)
         var sessions = await _parkingOperationService.GetAllOpenSessionsAsync(plate);
         return Ok(ApiResponse<IEnumerable<ParkingSessionDto>>.SuccessResponse(sessions, "Open sessions retrieved successfully"));
     }
