@@ -333,4 +333,24 @@
 <!-- * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * -->
 
 
-<router-outlet />
+<mat-toolbar color="primary">
+  <mat-icon>local_parking</mat-icon>
+  <span class="title">{{ title }}</span>
+  <span class="spacer"></span>
+  <button mat-button [routerLink]="'/' + routePaths.parking" routerLinkActive="active">
+    <mat-icon>home</mat-icon>
+    Parking Lot
+  </button>
+  <button mat-button [routerLink]="'/' + routePaths.vehicles" routerLinkActive="active">
+    <mat-icon>directions_car</mat-icon>
+    Vehicles
+  </button>
+  <button mat-button [routerLink]="'/' + routePaths.reports" routerLinkActive="active">
+    <mat-icon>assessment</mat-icon>
+    Reports
+  </button>
+</mat-toolbar>
+
+<div class="container">
+  <router-outlet></router-outlet>
+</div>
