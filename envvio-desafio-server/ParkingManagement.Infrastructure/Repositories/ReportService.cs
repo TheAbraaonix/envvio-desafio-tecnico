@@ -19,6 +19,7 @@ public class ReportService : IReportService
         var startDate = DateTime.UtcNow.Date.AddDays(-days);
 
         var revenueByDay = await _context.ParkingSessions
+            .AsNoTracking()
             .Where(ps => ps.ExitTime != null && ps.ExitTime >= startDate)
             .GroupBy(ps => ps.ExitTime!.Value.Date)
             .Select(g => new RevenueByDayDto(
@@ -38,6 +39,7 @@ public class ReportService : IReportService
         int topCount = 10)
     {
         var topVehicles = await _context.ParkingSessions
+            .AsNoTracking()
             .Include(ps => ps.Vehicle)
             .Where(ps => ps.ExitTime != null && 
                         ps.EntryTime >= startDate && 
@@ -67,8 +69,9 @@ public class ReportService : IReportService
         var currentHour = new DateTime(startDate.Year, startDate.Month, startDate.Day, startDate.Hour, 0, 0);
         var endHour = new DateTime(endDate.Year, endDate.Month, endDate.Day, endDate.Hour, 0, 0);
 
-        // Get all sessions that overlap with the date range
+        // Get all sessions that overlap with the date range ONCE
         var sessions = await _context.ParkingSessions
+            .AsNoTracking()
             .Where(ps => ps.EntryTime <= endDate && (ps.ExitTime == null || ps.ExitTime >= startDate))
             .ToListAsync();
 
@@ -77,6 +80,7 @@ public class ReportService : IReportService
         {
             var nextHour = currentHour.AddHours(1);
             
+            // Filter in-memory - no redundant DB query
             var count = sessions.Count(ps => 
                 ps.EntryTime < nextHour && 
                 (ps.ExitTime == null || ps.ExitTime >= currentHour));

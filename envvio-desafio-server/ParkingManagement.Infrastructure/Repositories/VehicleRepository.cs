@@ -22,12 +22,15 @@ public class VehicleRepository : IVehicleRepository
     public async Task<Vehicle?> GetByPlateAsync(string plate)
     {
         return await _context.Vehicles
+            .AsNoTracking()
             .FirstOrDefaultAsync(v => v.Plate == plate.ToUpperInvariant());
     }
 
     public async Task<IEnumerable<Vehicle>> GetAllAsync()
     {
-        return await _context.Vehicles.ToListAsync();
+        return await _context.Vehicles
+            .AsNoTracking()
+            .ToListAsync();
     }
 
     public async Task<Vehicle> AddAsync(Vehicle vehicle)
@@ -55,7 +58,9 @@ public class VehicleRepository : IVehicleRepository
 
     public async Task<bool> ExistsByPlateAsync(string plate, int? excludeId = null)
     {
-        var query = _context.Vehicles.Where(v => v.Plate == plate.ToUpperInvariant());
+        var query = _context.Vehicles
+            .AsNoTracking()
+            .Where(v => v.Plate == plate.ToUpperInvariant());
         
         if (excludeId.HasValue)
         {

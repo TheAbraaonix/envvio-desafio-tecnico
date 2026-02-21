@@ -24,6 +24,7 @@ public class ParkingSessionRepository : IParkingSessionRepository
     public async Task<ParkingSession?> GetOpenSessionByVehicleIdAsync(int vehicleId)
     {
         return await _context.ParkingSessions
+            .AsNoTracking()
             .Include(ps => ps.Vehicle)
             .FirstOrDefaultAsync(ps => ps.VehicleId == vehicleId && ps.ExitTime == null);
     }
@@ -31,6 +32,7 @@ public class ParkingSessionRepository : IParkingSessionRepository
     public async Task<IEnumerable<ParkingSession>> GetAllOpenSessionsAsync()
     {
         return await _context.ParkingSessions
+            .AsNoTracking()
             .Include(ps => ps.Vehicle)
             .Where(ps => ps.ExitTime == null)
             .ToListAsync();
@@ -39,6 +41,7 @@ public class ParkingSessionRepository : IParkingSessionRepository
     public async Task<IEnumerable<ParkingSession>> GetSessionsByVehicleIdAsync(int vehicleId)
     {
         return await _context.ParkingSessions
+            .AsNoTracking()
             .Include(ps => ps.Vehicle)
             .Where(ps => ps.VehicleId == vehicleId)
             .OrderByDescending(ps => ps.EntryTime)
@@ -61,6 +64,7 @@ public class ParkingSessionRepository : IParkingSessionRepository
     public async Task<bool> HasOpenSessionAsync(int vehicleId)
     {
         return await _context.ParkingSessions
+            .AsNoTracking()
             .AnyAsync(ps => ps.VehicleId == vehicleId && ps.ExitTime == null);
     }
 }

@@ -2,6 +2,7 @@ using AutoMapper;
 using ParkingManagement.Application.DTOs;
 using ParkingManagement.Application.Interfaces;
 using ParkingManagement.Domain.Entities;
+using ParkingManagement.Domain.Exceptions;
 using ParkingManagement.Domain.Interfaces;
 
 namespace ParkingManagement.Application.Services;
@@ -20,7 +21,7 @@ public class VehicleService : IVehicleService
     public async Task<VehicleDto> CreateVehicleAsync(CreateVehicleDto dto)
     {
         if (await _vehicleRepository.ExistsByPlateAsync(dto.Plate))
-            throw new InvalidOperationException($"Vehicle with plate {dto.Plate} already exists");
+            throw new InvalidParkingOperationException($"Vehicle with plate {dto.Plate} already exists");
 
         var vehicle = _mapper.Map<Vehicle>(dto);
         var created = await _vehicleRepository.AddAsync(vehicle);
@@ -31,7 +32,7 @@ public class VehicleService : IVehicleService
     public async Task<VehicleDto> UpdateVehicleAsync(int id, UpdateVehicleDto dto)
     {
         var vehicle = await _vehicleRepository.GetByIdAsync(id)
-            ?? throw new KeyNotFoundException($"Vehicle with ID {id} not found");
+            ?? throw new VehicleNotFoundException(id);
 
         vehicle.UpdateDetails(dto.Model, dto.Color, dto.Type);
         await _vehicleRepository.UpdateAsync(vehicle);

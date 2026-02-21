@@ -1,4 +1,5 @@
 using ParkingManagement.IoC;
+using ParkingManagement.WebAPI.Middleware;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -22,6 +23,9 @@ builder.Services.AddCors(options =>
 });
 
 var app = builder.Build();
+
+// Global exception handling middleware
+app.UseMiddleware<ExceptionHandlingMiddleware>();
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())

@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
+using ParkingManagement.Application.Common;
 using ParkingManagement.Application.DTOs;
 using ParkingManagement.Application.Interfaces;
 
@@ -16,73 +17,53 @@ public class VehiclesController : ControllerBase
     }
 
     [HttpGet]
-    public async Task<ActionResult<IEnumerable<VehicleDto>>> GetAll()
+    public async Task<ActionResult<ApiResponse<IEnumerable<VehicleDto>>>> GetAll()
     {
         var vehicles = await _vehicleService.GetAllVehiclesAsync();
-        return Ok(vehicles);
+        return Ok(ApiResponse<IEnumerable<VehicleDto>>.SuccessResponse(vehicles, "Vehicles retrieved successfully"));
     }
 
     [HttpGet("{id}")]
-    public async Task<ActionResult<VehicleDto>> GetById(int id)
+    public async Task<ActionResult<ApiResponse<VehicleDto>>> GetById(int id)
     {
         var vehicle = await _vehicleService.GetVehicleByIdAsync(id);
         
         if (vehicle == null)
-            return NotFound(new { message = $"Vehicle with ID {id} not found" });
+            return NotFound(ApiResponse<VehicleDto>.ErrorResponse($"Vehicle with ID {id} not found", 404));
 
-        return Ok(vehicle);
+        return Ok(ApiResponse<VehicleDto>.SuccessResponse(vehicle, "Vehicle retrieved successfully"));
     }
 
     [HttpGet("plate/{plate}")]
-    public async Task<ActionResult<VehicleDto>> GetByPlate(string plate)
+    public async Task<ActionResult<ApiResponse<VehicleDto>>> GetByPlate(string plate)
     {
         var vehicle = await _vehicleService.GetVehicleByPlateAsync(plate);
         
         if (vehicle == null)
-            return NotFound(new { message = $"Vehicle with plate {plate} not found" });
+            return NotFound(ApiResponse<VehicleDto>.ErrorResponse($"Vehicle with plate {plate} not found", 404));
 
-        return Ok(vehicle);
+        return Ok(ApiResponse<VehicleDto>.SuccessResponse(vehicle, "Vehicle retrieved successfully"));
     }
 
     [HttpPost]
-    public async Task<ActionResult<VehicleDto>> Create([FromBody] CreateVehicleDto dto)
+    public async Task<ActionResult<ApiResponse<VehicleDto>>> Create([FromBody] CreateVehicleDto dto)
     {
-        try
-        {
-            var vehicle = await _vehicleService.CreateVehicleAsync(dto);
-            return CreatedAtAction(nameof(GetById), new { id = vehicle.Id }, vehicle);
-        }
-        catch (InvalidOperationException ex)
-        {
-            return BadRequest(new { message = ex.Message });
-        }
+        var vehicle = await _vehicleService.CreateVehicleAsync(dto);
+        return CreatedAtAction(nameof(GetById), new { id = vehicle.Id }, 
+            ApiResponse<VehicleDto>.SuccessResponse(vehicle, "Vehicle created successfully", 201));
     }
 
     [HttpPut("{id}")]
-    public async Task<ActionResult<VehicleDto>> Update(int id, [FromBody] UpdateVehicleDto dto)
+    public async Task<ActionResult<ApiResponse<VehicleDto>>> Update(int id, [FromBody] UpdateVehicleDto dto)
     {
-        try
-        {
-            var vehicle = await _vehicleService.UpdateVehicleAsync(id, dto);
-            return Ok(vehicle);
-        }
-        catch (KeyNotFoundException ex)
-        {
-            return NotFound(new { message = ex.Message });
-        }
+        var vehicle = await _vehicleService.UpdateVehicleAsync(id, dto);
+        return Ok(ApiResponse<VehicleDto>.SuccessResponse(vehicle, "Vehicle updated successfully"));
     }
 
     [HttpDelete("{id}")]
-    public async Task<ActionResult> Delete(int id)
+    public async Task<ActionResult<ApiResponse<object>>> Delete(int id)
     {
-        try
-        {
-            await _vehicleService.DeleteVehicleAsync(id);
-            return NoContent();
-        }
-        catch (KeyNotFoundException ex)
-        {
-            return NotFound(new { message = ex.Message });
-        }
+        await _vehicleService.DeleteVehicleAsync(id);
+        return Ok(ApiResponse<object>.SuccessResponse(null!, "Vehicle deleted successfully"));
     }
 }

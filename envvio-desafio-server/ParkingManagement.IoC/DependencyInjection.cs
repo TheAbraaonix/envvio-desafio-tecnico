@@ -1,8 +1,11 @@
+using FluentValidation;
+using FluentValidation.AspNetCore;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using ParkingManagement.Application.Interfaces;
 using ParkingManagement.Application.Services;
+using ParkingManagement.Application.Validators;
 using ParkingManagement.Domain.Interfaces;
 using ParkingManagement.Infrastructure.Data;
 using ParkingManagement.Infrastructure.Repositories;
@@ -29,6 +32,10 @@ public static class DependencyInjection
     {
         // AutoMapper
         services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
+
+        // FluentValidation
+        services.AddFluentValidationAutoValidation();
+        services.AddValidatorsFromAssemblyContaining<CreateVehicleDtoValidator>();
 
         // Services
         services.AddScoped<IVehicleService, VehicleService>();

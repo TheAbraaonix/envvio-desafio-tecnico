@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
+using ParkingManagement.Application.Common;
 using ParkingManagement.Application.DTOs;
 using ParkingManagement.Application.Interfaces;
 
@@ -16,74 +17,42 @@ public class ParkingOperationsController : ControllerBase
     }
 
     [HttpGet("open-sessions")]
-    public async Task<ActionResult<IEnumerable<ParkingSessionDto>>> GetOpenSessions()
+    public async Task<ActionResult<ApiResponse<IEnumerable<ParkingSessionDto>>>> GetOpenSessions()
     {
         var sessions = await _parkingOperationService.GetAllOpenSessionsAsync();
-        return Ok(sessions);
+        return Ok(ApiResponse<IEnumerable<ParkingSessionDto>>.SuccessResponse(sessions, "Open sessions retrieved successfully"));
     }
 
     [HttpGet("sessions/{id}")]
-    public async Task<ActionResult<ParkingSessionDto>> GetSessionById(int id)
+    public async Task<ActionResult<ApiResponse<ParkingSessionDto>>> GetSessionById(int id)
     {
         var session = await _parkingOperationService.GetSessionByIdAsync(id);
         
         if (session == null)
-            return NotFound(new { message = $"Session with ID {id} not found" });
+            return NotFound(ApiResponse<ParkingSessionDto>.ErrorResponse($"Session with ID {id} not found", 404));
 
-        return Ok(session);
+        return Ok(ApiResponse<ParkingSessionDto>.SuccessResponse(session, "Session retrieved successfully"));
     }
 
     [HttpPost("entry")]
-    public async Task<ActionResult<ParkingSessionDto>> RegisterEntry([FromBody] RegisterEntryDto dto)
+    public async Task<ActionResult<ApiResponse<ParkingSessionDto>>> RegisterEntry([FromBody] RegisterEntryDto dto)
     {
-        try
-        {
-            var session = await _parkingOperationService.RegisterEntryAsync(dto);
-            return CreatedAtAction(nameof(GetSessionById), new { id = session.Id }, session);
-        }
-        catch (KeyNotFoundException ex)
-        {
-            return NotFound(new { message = ex.Message });
-        }
-        catch (InvalidOperationException ex)
-        {
-            return BadRequest(new { message = ex.Message });
-        }
+        var session = await _parkingOperationService.RegisterEntryAsync(dto);
+        return CreatedAtAction(nameof(GetSessionById), new { id = session.Id }, 
+            ApiResponse<ParkingSessionDto>.SuccessResponse(session, "Vehicle entry registered successfully", 201));
     }
 
     [HttpGet("exit-preview/{sessionId}")]
-    public async Task<ActionResult<ExitPreviewDto>> PreviewExit(int sessionId)
+    public async Task<ActionResult<ApiResponse<ExitPreviewDto>>> PreviewExit(int sessionId)
     {
-        try
-        {
-            var preview = await _parkingOperationService.PreviewExitAsync(sessionId);
-            return Ok(preview);
-        }
-        catch (KeyNotFoundException ex)
-        {
-            return NotFound(new { message = ex.Message });
-        }
-        catch (InvalidOperationException ex)
-        {
-            return BadRequest(new { message = ex.Message });
-        }
+        var preview = await _parkingOperationService.PreviewExitAsync(sessionId);
+        return Ok(ApiResponse<ExitPreviewDto>.SuccessResponse(preview, "Exit preview generated successfully"));
     }
 
     [HttpPost("exit")]
-    public async Task<ActionResult<ParkingSessionDto>> RegisterExit([FromBody] RegisterExitDto dto)
+    public async Task<ActionResult<ApiResponse<ParkingSessionDto>>> RegisterExit([FromBody] RegisterExitDto dto)
     {
-        try
-        {
-            var session = await _parkingOperationService.RegisterExitAsync(dto);
-            return Ok(session);
-        }
-        catch (KeyNotFoundException ex)
-        {
-            return NotFound(new { message = ex.Message });
-        }
-        catch (InvalidOperationException ex)
-        {
-            return BadRequest(new { message = ex.Message });
-        }
+        var session = await _parkingOperationService.RegisterExitAsync(dto);
+        return Ok(ApiResponse<ParkingSessionDto>.SuccessResponse(session, "Vehicle exit registered successfully"));
     }
 }

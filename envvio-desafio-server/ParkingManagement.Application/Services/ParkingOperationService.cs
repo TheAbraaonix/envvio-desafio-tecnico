@@ -2,6 +2,7 @@ using AutoMapper;
 using ParkingManagement.Application.DTOs;
 using ParkingManagement.Application.Interfaces;
 using ParkingManagement.Domain.Entities;
+using ParkingManagement.Domain.Exceptions;
 using ParkingManagement.Domain.Interfaces;
 
 namespace ParkingManagement.Application.Services;
@@ -28,10 +29,10 @@ public class ParkingOperationService : IParkingOperationService
     public async Task<ParkingSessionDto> RegisterEntryAsync(RegisterEntryDto dto)
     {
         var vehicle = await _vehicleRepository.GetByIdAsync(dto.VehicleId)
-            ?? throw new KeyNotFoundException($"Vehicle with ID {dto.VehicleId} not found");
+            ?? throw new VehicleNotFoundException(dto.VehicleId);
 
         if (await _sessionRepository.HasOpenSessionAsync(dto.VehicleId))
-            throw new InvalidOperationException($"Vehicle {vehicle.Plate} already has an open session");
+            throw new VehicleAlreadyInParkingException(vehicle.Plate);
 
         var session = new ParkingSession(dto.VehicleId);
         var created = await _sessionRepository.AddAsync(session);
@@ -45,10 +46,10 @@ public class ParkingOperationService : IParkingOperationService
     public async Task<ExitPreviewDto> PreviewExitAsync(int sessionId)
     {
         var session = await _sessionRepository.GetByIdAsync(sessionId)
-            ?? throw new KeyNotFoundException($"Session with ID {sessionId} not found");
+            ?? throw new ParkingSessionNotFoundException(sessionId);
 
         if (!session.IsOpen)
-            throw new InvalidOperationException("Session is already closed");
+            throw new InvalidParkingOperationException("Session is already closed");
 
         var duration = session.GetDuration();
         var amount = _pricingService.CalculateParkingFee(duration);
@@ -66,10 +67,10 @@ public class ParkingOperationService : IParkingOperationService
     public async Task<ParkingSessionDto> RegisterExitAsync(RegisterExitDto dto)
     {
         var session = await _sessionRepository.GetByIdAsync(dto.SessionId)
-            ?? throw new KeyNotFoundException($"Session with ID {dto.SessionId} not found");
+            ?? throw new ParkingSessionNotFoundException(dto.SessionId);
 
         if (!session.IsOpen)
-            throw new InvalidOperationException("Session is already closed");
+            throw new InvalidParkingOperationException("Session is already closed");
 
         var duration = session.GetDuration();
         var amount = _pricingService.CalculateParkingFee(duration);
