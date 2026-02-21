@@ -18,9 +18,14 @@ public class ReportService : IReportService
     {
         var startDate = DateTime.UtcNow.Date.AddDays(-days);
 
-        var revenueByDay = await _context.ParkingSessions
+        // SQLite cannot apply Sum() on decimal in queries, so we load data first
+        var sessions = await _context.ParkingSessions
             .AsNoTracking()
             .Where(ps => ps.ExitTime != null && ps.ExitTime >= startDate)
+            .ToListAsync();
+
+        // Then group and aggregate in memory
+        var revenueByDay = sessions
             .GroupBy(ps => ps.ExitTime!.Value.Date)
             .Select(g => new RevenueByDayDto(
                 g.Key,
@@ -28,7 +33,7 @@ public class ReportService : IReportService
                 g.Count()
             ))
             .OrderBy(r => r.Date)
-            .ToListAsync();
+            .ToList();
 
         return revenueByDay;
     }
@@ -38,12 +43,20 @@ public class ReportService : IReportService
         DateTime endDate, 
         int topCount = 10)
     {
-        var topVehicles = await _context.ParkingSessions
+        // First, get all the sessions we need
+        // Note: We must load to memory first because EF Core cannot translate TimeSpan calculations
+        // (specifically the .Ticks property used in Sum()) to SQL in grouped queries
+        var sessions = await _context.ParkingSessions
             .AsNoTracking()
             .Include(ps => ps.Vehicle)
             .Where(ps => ps.ExitTime != null && 
                         ps.EntryTime >= startDate && 
                         ps.ExitTime <= endDate)
+            .ToListAsync();
+
+        // Then group and calculate in memory
+        // Ticks = number of 100-nanosecond intervals in a TimeSpan (used for precise duration calculation)
+        var topVehicles = sessions
             .GroupBy(ps => new { ps.VehicleId, ps.Vehicle!.Plate, ps.Vehicle.Model })
             .Select(g => new VehicleParkingTimeDto(
                 g.Key.VehicleId,
@@ -54,7 +67,7 @@ public class ReportService : IReportService
             ))
             .OrderByDescending(v => v.TotalParkingTime)
             .Take(topCount)
-            .ToListAsync();
+            .ToList();
 
         return topVehicles;
     }

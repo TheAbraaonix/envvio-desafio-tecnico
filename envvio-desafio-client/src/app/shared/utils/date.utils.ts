@@ -24,6 +24,31 @@ export function formatLocalTime(utcTime: Date | string): string {
 }
 
 /**
+ * Formats a UTC date/time to local timezone showing only the hour (DD/MM/YYYY HH:00)
+ * Useful for hourly reports where minutes are not relevant
+ * @param utcTime - UTC date string or Date object
+ * @returns Formatted date string in local timezone (DD/MM/YYYY HH:00)
+ */
+export function formatLocalHour(utcTime: Date | string): string {
+  // Parse UTC date and convert to local time for display
+  let date: Date;
+  if (typeof utcTime === 'string') {
+    const utcString = utcTime.endsWith('Z') ? utcTime : utcTime + 'Z';
+    date = new Date(utcString);
+  } else {
+    date = new Date(utcTime);
+  }
+  
+  // Format as DD/MM/YYYY HH:00 in local timezone
+  const day = String(date.getDate()).padStart(2, '0');
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const year = date.getFullYear();
+  const hours = String(date.getHours()).padStart(2, '0');
+  
+  return `${day}/${month}/${year} ${hours}:00`;
+}
+
+/**
  * Calculates duration between a past time and now
  * @param startTime - Start time (UTC)
  * @returns Formatted duration string (e.g., "2h 30m")
