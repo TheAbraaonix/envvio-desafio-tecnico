@@ -1,9 +1,10 @@
 import { Component, OnInit } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { VehicleService } from '../../services/vehicle.service';
-import { Vehicle, VehicleTypeDisplay } from '../../models/vehicle.model';
+import { Vehicle } from '../../models/vehicle.model';
 import { VehicleFormComponent } from '../vehicle-form/vehicle-form.component';
 import { ConfirmationDialogComponent } from '../../../../core/components/confirmation-dialog/confirmation-dialog.component';
+import { getVehicleTypeDisplay } from '../../../../shared/utils';
 
 @Component({
   selector: 'app-vehicle-list',
@@ -26,9 +27,8 @@ export class VehicleListComponent implements OnInit {
     this.loadVehicles();
   }
 
-  getVehicleTypeDisplay(type: any): string {
-    return VehicleTypeDisplay[type as keyof typeof VehicleTypeDisplay] || type;
-  }
+  // Expose utility function to template
+  protected getVehicleTypeDisplay = getVehicleTypeDisplay;
 
   loadVehicles(): void {
     this.isLoading = true;

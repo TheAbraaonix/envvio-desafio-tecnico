@@ -1,0 +1,83 @@
+<h2 mat-dialog-title>Registrar Entrada</h2>
+
+<mat-dialog-content>
+  <form [formGroup]="entryForm">
+    
+    <!-- Plate Field -->
+    <mat-form-field appearance="outline" class="full-width">
+      <mat-label>Placa do Veículo</mat-label>
+      <input matInput formControlName="plate" placeholder="ABC1234" maxlength="7" 
+             (input)="plate?.setValue(plate?.value.toUpperCase())"
+             (blur)="onPlateBlur()">
+      <mat-hint>Digite a placa do veículo (7 caracteres)</mat-hint>
+      <mat-icon matSuffix *ngIf="isCheckingPlate">
+        <mat-spinner diameter="20"></mat-spinner>
+      </mat-icon>
+      <mat-error *ngIf="plate?.hasError('required')">
+        Placa é obrigatória
+      </mat-error>
+      <mat-error *ngIf="plate?.hasError('minlength') || plate?.hasError('maxlength')">
+        Placa deve ter exatamente 7 caracteres
+      </mat-error>
+      <mat-error *ngIf="plate?.hasError('pattern')">
+        Apenas letras maiúsculas e números são permitidos
+      </mat-error>
+    </mat-form-field>
+
+    <!-- Vehicle Creation Form (shown when plate not found) -->
+    <div *ngIf="showVehicleForm" class="vehicle-form-container">
+      <div class="info-message">
+        <mat-icon>info</mat-icon>
+        <span>Veículo não encontrado. Preencha os dados abaixo para criar o cadastro.</span>
+      </div>
+
+      <!-- Model Field -->
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Modelo</mat-label>
+        <input matInput formControlName="model" placeholder="Toyota Corolla" maxlength="100">
+        <mat-error *ngIf="model?.hasError('required')">
+          Modelo é obrigatório
+        </mat-error>
+        <mat-error *ngIf="model?.hasError('maxlength')">
+          Modelo não pode exceder 100 caracteres
+        </mat-error>
+      </mat-form-field>
+
+      <!-- Color Field -->
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Cor</mat-label>
+        <input matInput formControlName="color" placeholder="Preto" maxlength="50">
+        <mat-hint>Opcional</mat-hint>
+        <mat-error *ngIf="color?.hasError('maxlength')">
+          Cor não pode exceder 50 caracteres
+        </mat-error>
+      </mat-form-field>
+
+      <!-- Type Field -->
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Tipo de Veículo</mat-label>
+        <mat-select formControlName="type">
+          <mat-option *ngFor="let type of vehicleTypes" [value]="type">
+            {{ type }}
+          </mat-option>
+        </mat-select>
+        <mat-error *ngIf="type?.hasError('required')">
+          Tipo de veículo é obrigatório
+        </mat-error>
+      </mat-form-field>
+    </div>
+
+  </form>
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+  <button mat-button (click)="onCancel()" [disabled]="isSubmitting">
+    Cancelar
+  </button>
+  <button mat-raised-button color="primary" (click)="onSubmit()" [disabled]="isSubmitting || isCheckingPlate">
+    <mat-icon *ngIf="isSubmitting">
+      <mat-spinner diameter="20"></mat-spinner>
+    </mat-icon>
+    {{ showVehicleForm ? 'Criar e Registrar Entrada' : 'Registrar Entrada' }}
+  </button>
+</mat-dialog-actions>

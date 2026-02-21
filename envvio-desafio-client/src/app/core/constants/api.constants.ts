@@ -1,5 +1,5 @@
 export const API_ENDPOINTS = {
   vehicles: '/vehicles',
-  parkingOperations: '/parking-operations',
+  parkingOperations: '/parkingOperations',
   reports: '/reports'
 } as const;

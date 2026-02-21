@@ -15,7 +15,7 @@ export class ParkingOperationService {
   constructor(private http: HttpClient) { }
 
   getCurrentSessions(): Observable<ApiResponse<ParkingSession[]>> {
-    return this.http.get<ApiResponse<ParkingSession[]>>(`${this.baseUrl}/current`);
+    return this.http.get<ApiResponse<ParkingSession[]>>(`${this.baseUrl}/open-sessions`);
   }
 
   registerEntry(dto: RegisterEntryDto): Observable<ApiResponse<ParkingSession>> {

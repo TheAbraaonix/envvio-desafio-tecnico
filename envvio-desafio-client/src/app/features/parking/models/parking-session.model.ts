@@ -1,4 +1,4 @@
-import { Vehicle } from './vehicle.model';
+import { Vehicle } from '../../vehicles/models/vehicle.model';
 
 export interface ParkingSession {
   id: number;
