@@ -6,4 +6,9 @@ public class VehicleNotFoundException : NotFoundException
         : base($"Vehicle with ID {vehicleId} was not found.")
     {
     }
+
+    public VehicleNotFoundException(string message) 
+        : base(message)
+    {
+    }
 }

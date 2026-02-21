@@ -28,13 +28,13 @@ public class ParkingOperationService : IParkingOperationService
 
     public async Task<ParkingSessionDto> RegisterEntryAsync(RegisterEntryDto dto)
     {
-        var vehicle = await _vehicleRepository.GetByIdAsync(dto.VehicleId)
-            ?? throw new VehicleNotFoundException(dto.VehicleId);
+        var vehicle = await _vehicleRepository.GetByPlateAsync(dto.Plate)
+            ?? throw new VehicleNotFoundException($"Vehicle with plate {dto.Plate} was not found. Please register the vehicle first.");
 
-        if (await _sessionRepository.HasOpenSessionAsync(dto.VehicleId))
+        if (await _sessionRepository.HasOpenSessionAsync(vehicle.Id))
             throw new VehicleAlreadyInParkingException(vehicle.Plate);
 
-        var session = new ParkingSession(dto.VehicleId);
+        var session = new ParkingSession(vehicle.Id);
         var created = await _sessionRepository.AddAsync(session);
 
         // Reload session with vehicle navigation property
@@ -43,10 +43,13 @@ public class ParkingOperationService : IParkingOperationService
         return _mapper.Map<ParkingSessionDto>(created);
     }
 
-    public async Task<ExitPreviewDto> PreviewExitAsync(int sessionId)
+    public async Task<ExitPreviewDto> PreviewExitByPlateAsync(string plate)
     {
-        var session = await _sessionRepository.GetByIdAsync(sessionId)
-            ?? throw new ParkingSessionNotFoundException(sessionId);
+        var vehicle = await _vehicleRepository.GetByPlateAsync(plate)
+            ?? throw new VehicleNotFoundException($"Vehicle with plate {plate} was not found.");
+
+        var session = await _sessionRepository.GetOpenSessionByVehicleIdAsync(vehicle.Id)
+            ?? throw new ParkingSessionNotFoundException($"No open parking session found for vehicle {plate}.");
 
         if (!session.IsOpen)
             throw new InvalidParkingOperationException("Session is already closed");
@@ -66,8 +69,11 @@ public class ParkingOperationService : IParkingOperationService
 
     public async Task<ParkingSessionDto> RegisterExitAsync(RegisterExitDto dto)
     {
-        var session = await _sessionRepository.GetByIdAsync(dto.SessionId)
-            ?? throw new ParkingSessionNotFoundException(dto.SessionId);
+        var vehicle = await _vehicleRepository.GetByPlateAsync(dto.Plate)
+            ?? throw new VehicleNotFoundException($"Vehicle with plate {dto.Plate} was not found.");
+
+        var session = await _sessionRepository.GetOpenSessionByVehicleIdAsync(vehicle.Id)
+            ?? throw new ParkingSessionNotFoundException($"No open parking session found for vehicle {dto.Plate}.");
 
         if (!session.IsOpen)
             throw new InvalidParkingOperationException("Session is already closed");

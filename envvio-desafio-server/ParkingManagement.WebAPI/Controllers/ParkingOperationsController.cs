@@ -42,10 +42,10 @@ public class ParkingOperationsController : ControllerBase
             ApiResponse<ParkingSessionDto>.SuccessResponse(session, "Vehicle entry registered successfully", 201));
     }
 
-    [HttpGet("exit-preview/{sessionId}")]
-    public async Task<ActionResult<ApiResponse<ExitPreviewDto>>> PreviewExit(int sessionId)
+    [HttpGet("exit-preview/plate/{plate}")]
+    public async Task<ActionResult<ApiResponse<ExitPreviewDto>>> PreviewExitByPlate(string plate)
     {
-        var preview = await _parkingOperationService.PreviewExitAsync(sessionId);
+        var preview = await _parkingOperationService.PreviewExitByPlateAsync(plate);
         return Ok(ApiResponse<ExitPreviewDto>.SuccessResponse(preview, "Exit preview generated successfully"));
     }
 

@@ -12,11 +12,11 @@ public record ParkingSessionDto(
 );
 
 public record RegisterEntryDto(
-    int VehicleId
+    string Plate
 );
 
 public record RegisterExitDto(
-    int SessionId
+    string Plate
 );
 
 public record ExitPreviewDto(

@@ -6,4 +6,9 @@ public class ParkingSessionNotFoundException : NotFoundException
         : base($"Parking session with ID {sessionId} was not found.")
     {
     }
+
+    public ParkingSessionNotFoundException(string message) 
+        : base(message)
+    {
+    }
 }
