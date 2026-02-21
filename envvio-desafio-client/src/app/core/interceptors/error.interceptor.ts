@@ -2,6 +2,8 @@ import { HttpErrorResponse, HttpInterceptorFn } from '@angular/common/http';
 import { inject } from '@angular/core';
 import { catchError, throwError } from 'rxjs';
 import { ErrorTranslationService } from '../services/error-translation.service';
+import { ApiResponse } from '../models/api-response.model';
+import { environment } from '../../environments/environment';
 
 export const errorInterceptor: HttpInterceptorFn = (req, next) => {
   const errorTranslation = inject(ErrorTranslationService);
@@ -11,26 +13,31 @@ export const errorInterceptor: HttpInterceptorFn = (req, next) => {
       let errorMessage = 'Um erro desconhecido ocorreu.';
 
       if (error.error instanceof ErrorEvent) {
-        // Client-side or network error
+        // Client-side error
         errorMessage = `Error: ${error.error.message}`;
       } else {
-        // Backend returned an unsuccessful response code
+        // Backend error
         if (error.status === 0) {
-            errorMessage = 'Não foi possível conectar ao servidor. Verifique sua conexão com a internet.';
-        } else if (error.error?.message) {
-          // API returned a structured error message - translate it
-          errorMessage = errorTranslation.translateError(error.error.message);
-        } else {
-          errorMessage = `Server Error: ${error.status} - ${error.statusText}`;
+          errorMessage = 'Não foi possível conectar ao servidor. Verifique sua conexão.';
+        } else if (error.error as ApiResponse<any>) {
+          const apiError = error.error as ApiResponse<any>;
+          
+          // Use error code for translation (scalable!)
+          errorMessage = errorTranslation.translateError(
+            apiError.errorCode,
+            apiError.message  // Fallback to English message if code not found
+          );
         }
       }
 
-      console.error('HTTP Error:', {
-        status: error.status,
-        message: errorMessage,
-        url: error.url,
-        details: error.error
-      });
+      if (!environment.production) {
+          console.error('HTTP Error:', {
+          status: error.status,
+          errorCode: (error.error as ApiResponse<any>)?.errorCode,
+          message: errorMessage,
+          url: error.url
+        });
+      }
       
       return throwError(() => new Error(errorMessage));
     })

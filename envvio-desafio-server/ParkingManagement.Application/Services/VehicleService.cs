@@ -2,7 +2,8 @@ using AutoMapper;
 using ParkingManagement.Application.DTOs;
 using ParkingManagement.Application.Interfaces;
 using ParkingManagement.Domain.Entities;
-using ParkingManagement.Domain.Exceptions;
+using ParkingManagement.Domain.Exceptions.Vehicle;
+using ParkingManagement.Domain.Exceptions.ParkingOperation;
 using ParkingManagement.Domain.Interfaces;
 
 namespace ParkingManagement.Application.Services;
@@ -21,7 +22,7 @@ public class VehicleService : IVehicleService
     public async Task<VehicleDto> CreateVehicleAsync(CreateVehicleDto dto)
     {
         if (await _vehicleRepository.ExistsByPlateAsync(dto.Plate))
-            throw new InvalidParkingOperationException($"Vehicle with plate {dto.Plate} already exists");
+            throw new VehicleAlreadyExistsException(dto.Plate);
 
         var vehicle = _mapper.Map<Vehicle>(dto);
         var created = await _vehicleRepository.AddAsync(vehicle);

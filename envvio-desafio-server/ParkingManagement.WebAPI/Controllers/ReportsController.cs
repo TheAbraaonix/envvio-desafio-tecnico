@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Mvc;
 using ParkingManagement.Application.Common;
 using ParkingManagement.Application.DTOs;
 using ParkingManagement.Application.Interfaces;
+using ParkingManagement.Domain.Enums;
 
 namespace ParkingManagement.WebAPI.Controllers;
 
@@ -20,7 +21,9 @@ public class ReportsController : ControllerBase
     public async Task<ActionResult<ApiResponse<IEnumerable<RevenueByDayDto>>>> GetRevenueByDay([FromQuery] int days = 7)
     {
         if (days <= 0 || days > 365)
-            return BadRequest(ApiResponse<IEnumerable<RevenueByDayDto>>.ErrorResponse("Days must be between 1 and 365"));
+            return BadRequest(ApiResponse<IEnumerable<RevenueByDayDto>>.ErrorResponse(
+                "Days must be between 1 and 365", 
+                ErrorCode.VALIDATION_ERROR));
 
         var revenue = await _reportService.GetRevenueByDayAsync(days);
         return Ok(ApiResponse<IEnumerable<RevenueByDayDto>>.SuccessResponse(revenue, "Revenue report generated successfully"));
@@ -33,13 +36,17 @@ public class ReportsController : ControllerBase
         [FromQuery] int top = 10)
     {
         if (top <= 0 || top > 100)
-            return BadRequest(ApiResponse<IEnumerable<VehicleParkingTimeDto>>.ErrorResponse("Top must be between 1 and 100"));
+            return BadRequest(ApiResponse<IEnumerable<VehicleParkingTimeDto>>.ErrorResponse(
+                "Top must be between 1 and 100", 
+                ErrorCode.VALIDATION_ERROR));
 
         var start = startDate ?? DateTime.UtcNow.AddDays(-30);
         var end = endDate ?? DateTime.UtcNow;
 
         if (start > end)
-            return BadRequest(ApiResponse<IEnumerable<VehicleParkingTimeDto>>.ErrorResponse("Start date must be before end date"));
+            return BadRequest(ApiResponse<IEnumerable<VehicleParkingTimeDto>>.ErrorResponse(
+                "Start date must be before end date", 
+                ErrorCode.VALIDATION_ERROR));
 
         var topVehicles = await _reportService.GetTopVehiclesByParkingTimeAsync(start, end, top);
         return Ok(ApiResponse<IEnumerable<VehicleParkingTimeDto>>.SuccessResponse(topVehicles, "Top vehicles report generated successfully"));
@@ -54,11 +61,15 @@ public class ReportsController : ControllerBase
         var end = endDate ?? DateTime.UtcNow;
 
         if (start > end)
-            return BadRequest(ApiResponse<IEnumerable<OccupancyByHourDto>>.ErrorResponse("Start date must be before end date"));
+            return BadRequest(ApiResponse<IEnumerable<OccupancyByHourDto>>.ErrorResponse(
+                "Start date must be before end date", 
+                ErrorCode.VALIDATION_ERROR));
 
         var diffInDays = (end - start).TotalDays;
         if (diffInDays > 31)
-            return BadRequest(ApiResponse<IEnumerable<OccupancyByHourDto>>.ErrorResponse("Date range cannot exceed 31 days"));
+            return BadRequest(ApiResponse<IEnumerable<OccupancyByHourDto>>.ErrorResponse(
+                "Date range cannot exceed 31 days", 
+                ErrorCode.VALIDATION_ERROR));
 
         var occupancy = await _reportService.GetOccupancyByHourAsync(start, end);
         return Ok(ApiResponse<IEnumerable<OccupancyByHourDto>>.SuccessResponse(occupancy, "Occupancy report generated successfully"));

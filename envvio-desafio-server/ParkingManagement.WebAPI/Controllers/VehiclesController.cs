@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Mvc;
 using ParkingManagement.Application.Common;
 using ParkingManagement.Application.DTOs;
 using ParkingManagement.Application.Interfaces;
+using ParkingManagement.Domain.Enums;
 
 namespace ParkingManagement.WebAPI.Controllers;
 
@@ -29,7 +30,10 @@ public class VehiclesController : ControllerBase
         var vehicle = await _vehicleService.GetVehicleByIdAsync(id);
         
         if (vehicle == null)
-            return NotFound(ApiResponse<VehicleDto>.ErrorResponse($"Vehicle with ID {id} not found", 404));
+            return NotFound(ApiResponse<VehicleDto>.ErrorResponse(
+                $"Vehicle with ID {id} not found", 
+                ErrorCode.VEHICLE_NOT_FOUND, 
+                404));
 
         return Ok(ApiResponse<VehicleDto>.SuccessResponse(vehicle, "Vehicle retrieved successfully"));
     }
@@ -40,7 +44,10 @@ public class VehiclesController : ControllerBase
         var vehicle = await _vehicleService.GetVehicleByPlateAsync(plate);
         
         if (vehicle == null)
-            return NotFound(ApiResponse<VehicleDto>.ErrorResponse($"Vehicle with plate {plate} not found", 404));
+            return NotFound(ApiResponse<VehicleDto>.ErrorResponse(
+                $"Vehicle with plate {plate} not found", 
+                ErrorCode.VEHICLE_NOT_FOUND, 
+                404));
 
         return Ok(ApiResponse<VehicleDto>.SuccessResponse(vehicle, "Vehicle retrieved successfully"));
     }

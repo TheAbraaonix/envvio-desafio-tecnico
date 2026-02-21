@@ -2,7 +2,10 @@ using System.Net;
 using System.Text.Json;
 using FluentValidation;
 using ParkingManagement.Application.Common;
-using ParkingManagement.Domain.Exceptions;
+using ParkingManagement.Domain.Enums;
+using ParkingManagement.Domain.Exceptions.Base;
+using ParkingManagement.Domain.Exceptions.Vehicle;
+using ParkingManagement.Domain.Exceptions.ParkingOperation;
 
 namespace ParkingManagement.WebAPI.Middleware;
 
@@ -33,36 +36,94 @@ public class ExceptionHandlingMiddleware
     {
         _logger.LogError(exception, "An error occurred: {Message}", exception.Message);
 
-        var response = exception switch
+        var (statusCode, errorCode, message, errors) = exception switch
         {
-            NotFoundException => ApiResponse<object>.ErrorResponse(
+            // Specific vehicle exceptions (most specific first)
+            VehicleAlreadyExistsException => (
+                HttpStatusCode.Conflict,
+                ErrorCode.VEHICLE_ALREADY_EXISTS,
                 exception.Message,
-                (int)HttpStatusCode.NotFound),
+                null as List<string>),
 
-            ConflictException => ApiResponse<object>.ErrorResponse(
+            VehicleNotFoundException => (
+                HttpStatusCode.NotFound,
+                ErrorCode.VEHICLE_NOT_FOUND,
                 exception.Message,
-                (int)HttpStatusCode.Conflict),
+                null as List<string>),
 
-            BadRequestException => ApiResponse<object>.ErrorResponse(
+            // Specific parking operation exceptions
+            VehicleAlreadyInParkingException => (
+                HttpStatusCode.Conflict,
+                ErrorCode.VEHICLE_ALREADY_IN_PARKING,
                 exception.Message,
-                (int)HttpStatusCode.BadRequest),
+                null as List<string>),
 
-            ValidationException validationException => ApiResponse<object>.ErrorResponse(
+            ParkingSessionNotFoundException => (
+                HttpStatusCode.NotFound,
+                ErrorCode.PARKING_SESSION_NOT_FOUND,
+                exception.Message,
+                null as List<string>),
+
+            SessionAlreadyClosedException => (
+                HttpStatusCode.BadRequest,
+                ErrorCode.SESSION_ALREADY_CLOSED,
+                exception.Message,
+                null as List<string>),
+
+            // FluentValidation exception
+            ValidationException validationException => (
+                HttpStatusCode.BadRequest,
+                ErrorCode.VALIDATION_ERROR,
                 "Validation failed",
-                (int)HttpStatusCode.BadRequest,
                 validationException.Errors.Select(e => e.ErrorMessage).ToList()),
 
-            _ => ApiResponse<object>.ErrorResponse(
+            // Generic parking operation exception (catch-all)
+            InvalidParkingOperationException => (
+                HttpStatusCode.BadRequest,
+                ErrorCode.BAD_REQUEST,
+                exception.Message,
+                null as List<string>),
+
+            // Base exceptions (fallback for any unmapped specific exceptions)
+            NotFoundException => (
+                HttpStatusCode.NotFound,
+                ErrorCode.RESOURCE_NOT_FOUND,
+                exception.Message,
+                null as List<string>),
+
+            ConflictException => (
+                HttpStatusCode.Conflict,
+                ErrorCode.CONFLICT,
+                exception.Message,
+                null as List<string>),
+
+            BadRequestException => (
+                HttpStatusCode.BadRequest,
+                ErrorCode.BAD_REQUEST,
+                exception.Message,
+                null as List<string>),
+
+            // Completely unknown exception (safety net)
+            _ => (
+                HttpStatusCode.InternalServerError,
+                ErrorCode.INTERNAL_SERVER_ERROR,
                 "An internal server error occurred",
-                (int)HttpStatusCode.InternalServerError)
+                null as List<string>)
         };
 
+        var response = ApiResponse<object>.ErrorResponse(
+            message,
+            errorCode,
+            (int)statusCode,
+            errors);
+
         context.Response.ContentType = "application/json";
-        context.Response.StatusCode = response.StatusCode;
+        context.Response.StatusCode = (int)statusCode;
 
         var jsonOptions = new JsonSerializerOptions
         {
-            PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+            PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+            Converters = { new System.Text.Json.Serialization.JsonStringEnumConverter() }
         };
 
         await context.Response.WriteAsync(JsonSerializer.Serialize(response, jsonOptions));

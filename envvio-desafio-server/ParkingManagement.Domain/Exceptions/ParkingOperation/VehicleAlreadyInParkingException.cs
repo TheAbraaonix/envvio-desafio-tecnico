@@ -1,4 +1,6 @@
-namespace ParkingManagement.Domain.Exceptions;
+using ParkingManagement.Domain.Exceptions.Base;
+
+namespace ParkingManagement.Domain.Exceptions.ParkingOperation;
 
 public class VehicleAlreadyInParkingException : ConflictException
 {

@@ -1,4 +1,6 @@
-namespace ParkingManagement.Domain.Exceptions;
+using ParkingManagement.Domain.Exceptions.Base;
+
+namespace ParkingManagement.Domain.Exceptions.Vehicle;
 
 public class VehicleNotFoundException : NotFoundException
 {

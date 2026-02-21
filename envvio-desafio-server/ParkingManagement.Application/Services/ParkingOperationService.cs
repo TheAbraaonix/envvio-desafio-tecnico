@@ -2,7 +2,8 @@ using AutoMapper;
 using ParkingManagement.Application.DTOs;
 using ParkingManagement.Application.Interfaces;
 using ParkingManagement.Domain.Entities;
-using ParkingManagement.Domain.Exceptions;
+using ParkingManagement.Domain.Exceptions.Vehicle;
+using ParkingManagement.Domain.Exceptions.ParkingOperation;
 using ParkingManagement.Domain.Interfaces;
 
 namespace ParkingManagement.Application.Services;
@@ -52,7 +53,7 @@ public class ParkingOperationService : IParkingOperationService
             ?? throw new ParkingSessionNotFoundException($"No open parking session found for vehicle {plate}.");
 
         if (!session.IsOpen)
-            throw new InvalidParkingOperationException("Session is already closed");
+            throw new SessionAlreadyClosedException();
 
         var duration = session.GetDuration();
         var amount = _pricingService.CalculateParkingFee(duration);
@@ -76,7 +77,7 @@ public class ParkingOperationService : IParkingOperationService
             ?? throw new ParkingSessionNotFoundException($"No open parking session found for vehicle {dto.Plate}.");
 
         if (!session.IsOpen)
-            throw new InvalidParkingOperationException("Session is already closed");
+            throw new SessionAlreadyClosedException();
 
         var duration = session.GetDuration();
         var amount = _pricingService.CalculateParkingFee(duration);

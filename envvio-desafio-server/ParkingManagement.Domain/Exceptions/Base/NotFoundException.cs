@@ -1,4 +1,4 @@
-namespace ParkingManagement.Domain.Exceptions;
+namespace ParkingManagement.Domain.Exceptions.Base;
 
 public abstract class NotFoundException : Exception
 {

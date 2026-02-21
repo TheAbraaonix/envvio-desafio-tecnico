@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Mvc;
 using ParkingManagement.Application.Common;
 using ParkingManagement.Application.DTOs;
 using ParkingManagement.Application.Interfaces;
+using ParkingManagement.Domain.Enums;
 
 namespace ParkingManagement.WebAPI.Controllers;
 
@@ -29,7 +30,10 @@ public class ParkingOperationsController : ControllerBase
         var session = await _parkingOperationService.GetSessionByIdAsync(id);
         
         if (session == null)
-            return NotFound(ApiResponse<ParkingSessionDto>.ErrorResponse($"Session with ID {id} not found", 404));
+            return NotFound(ApiResponse<ParkingSessionDto>.ErrorResponse(
+                $"Session with ID {id} not found", 
+                ErrorCode.PARKING_SESSION_NOT_FOUND, 
+                404));
 
         return Ok(ApiResponse<ParkingSessionDto>.SuccessResponse(session, "Session retrieved successfully"));
     }
