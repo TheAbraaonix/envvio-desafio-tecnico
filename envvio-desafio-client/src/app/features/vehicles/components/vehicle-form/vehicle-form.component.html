@@ -6,17 +6,20 @@
     <!-- License Plate Field -->
     <mat-form-field appearance="outline" class="full-width">
       <mat-label>Placa</mat-label>
-      <input matInput formControlName="plate" placeholder="ABC1234" maxlength="7" 
+      <input matInput formControlName="plate" placeholder="ABC1234 ou ABC1D23" maxlength="7" 
              [readonly]="isEditMode" (input)="plate?.setValue(plate?.value.toUpperCase())">
-      <mat-hint *ngIf="!isEditMode">7 caracteres (letras e números)</mat-hint>
+      <mat-hint *ngIf="!isEditMode">Formato brasileiro: ABC1234 ou ABC1D23</mat-hint>
       <mat-error *ngIf="plate?.hasError('required')">
         Placa é obrigatória
       </mat-error>
-      <mat-error *ngIf="plate?.hasError('minlength') || plate?.hasError('maxlength')">
-        Placa deve ter exatamente 7 caracteres
+      <mat-error *ngIf="plate?.hasError('minlength')">
+        Placa deve ter 7 caracteres (atual: {{ plate?.value?.length || 0 }}/7)
+      </mat-error>
+      <mat-error *ngIf="plate?.hasError('maxlength')">
+        Placa deve ter 7 caracteres (atual: {{ plate?.value?.length || 0 }}/7)
       </mat-error>
       <mat-error *ngIf="plate?.hasError('pattern')">
-        Apenas letras maiúsculas e números são permitidos
+        Formato inválido. Use: ABC1234 (antigo) ou ABC1D23 (Mercosul)
       </mat-error>
     </mat-form-field>
 

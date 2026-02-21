@@ -63,7 +63,10 @@
           <ng-container matColumnDef="actions">
             <th mat-header-cell *matHeaderCellDef>Ações</th>
             <td mat-cell *matCellDef="let session">
-              <button mat-raised-button color="accent" matTooltip="Registrar Saída" (click)="openExitDialog(session)">
+              <button mat-raised-button color="accent" 
+                      matTooltip="Registrar saída"
+                      [attr.aria-label]="'Registrar saída do veículo com placa ' + session.vehicle?.plate"
+                      (click)="openExitDialog(session)">
                 <mat-icon>logout</mat-icon>
                 Saída
               </button>

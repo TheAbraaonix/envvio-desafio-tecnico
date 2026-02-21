@@ -3,6 +3,72 @@
 html, body { height: 100%; }
 body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
 
+/* ===== GLOBAL DESIGN SYSTEM ===== */
+
+/* Color Variables */
+:root {
+  /* Semantic Colors */
+  --error-bg: #ffebee;
+  --error-text: #c62828;
+  --success-bg: #e8f5e9;
+  --success-text: #2e7d32;
+  --info-bg: #1976d2;
+  --info-text: #ffffff;
+  
+  /* Text Colors */
+  --text-primary: rgba(0, 0, 0, 0.87);
+  --text-secondary: rgba(0, 0, 0, 0.60);
+  --text-disabled: rgba(0, 0, 0, 0.38);
+  
+  /* Spacing Scale */
+  --spacing-xs: 4px;
+  --spacing-sm: 8px;
+  --spacing-md: 16px;
+  --spacing-lg: 24px;
+  --spacing-xl: 32px;
+}
+
+/* Typography Scale */
+h1 {
+  font-size: 28px;
+  font-weight: 500;
+  color: var(--text-primary);
+  margin: 0 0 var(--spacing-lg) 0;
+}
+
+h2 {
+  font-size: 24px;
+  font-weight: 500;
+  color: var(--text-primary);
+  margin: 0 0 var(--spacing-md) 0;
+}
+
+h3 {
+  font-size: 20px;
+  font-weight: 500;
+  color: var(--text-primary);
+  margin: 0 0 var(--spacing-md) 0;
+}
+
+/* ===== TABLE TEXT OVERFLOW FIX ===== */
+.mat-mdc-table {
+  td, th {
+    max-width: 250px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  
+  td:first-child, th:first-child {
+    max-width: 120px;
+  }
+  
+  td:last-child, th:last-child {
+    max-width: 200px;
+    white-space: normal;
+  }
+}
+
 /* Fix for Material form field floating labels being clipped */
 .mat-mdc-form-field {
   overflow: visible !important;
@@ -40,12 +106,12 @@ body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
 
 /* Snackbar styles */
 .success-snackbar {
-  background-color: #4caf50 !important;
+  background-color: var(--success-text) !important;
   color: white !important;
 }
 
 .error-snackbar {
-  background-color: #f44336 !important;
+  background-color: var(--error-text) !important;
   color: white !important;
 }
 

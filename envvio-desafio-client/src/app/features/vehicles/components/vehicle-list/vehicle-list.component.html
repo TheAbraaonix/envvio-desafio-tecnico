@@ -57,10 +57,16 @@
           <ng-container matColumnDef="actions">
             <th mat-header-cell *matHeaderCellDef>Ações</th>
             <td mat-cell *matCellDef="let vehicle">
-              <button mat-icon-button color="primary" matTooltip="Editar" (click)="openEditDialog(vehicle)">
+              <button mat-icon-button color="primary" 
+                      matTooltip="Editar veículo"
+                      [attr.aria-label]="'Editar veículo com placa ' + vehicle.plate"
+                      (click)="openEditDialog(vehicle)">
                 <mat-icon>edit</mat-icon>
               </button>
-              <button mat-icon-button color="warn" matTooltip="Excluir" (click)="deleteVehicle(vehicle.id)">
+              <button mat-icon-button color="warn"
+                      matTooltip="Excluir veículo"
+                      [attr.aria-label]="'Excluir veículo com placa ' + vehicle.plate"
+                      (click)="deleteVehicle(vehicle.id)">
                 <mat-icon>delete</mat-icon>
               </button>
             </td>

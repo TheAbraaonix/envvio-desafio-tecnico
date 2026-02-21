@@ -20,7 +20,7 @@
         Placa deve ter exatamente 7 caracteres
       </mat-error>
       <mat-error *ngIf="plate?.hasError('pattern')">
-        Apenas letras maiúsculas e números são permitidos
+        Formato inválido. Use: ABC1234 (antigo) ou ABC1D23 (Mercosul)
       </mat-error>
     </mat-form-field>
 

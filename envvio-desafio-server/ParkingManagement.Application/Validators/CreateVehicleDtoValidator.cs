@@ -10,7 +10,9 @@ public class CreateVehicleDtoValidator : AbstractValidator<CreateVehicleDto>
         RuleFor(x => x.Plate)
             .NotEmpty().WithMessage("Plate is required")
             .Length(7).WithMessage("Plate must be exactly 7 characters")
-            .Matches("^[A-Z0-9]+$").WithMessage("Plate must contain only uppercase letters and numbers");
+            // Brazilian plate patterns: LLLNNNN (old) or LLLNLNN (Mercosul)
+            .Matches("^[A-Z]{3}([0-9]{4}|[0-9][A-J][0-9]{2})$")
+            .WithMessage("Plate must follow Brazilian format: ABC1234 or ABC1D23");
 
         RuleFor(x => x.Model)
             .NotEmpty().WithMessage("Model is required")

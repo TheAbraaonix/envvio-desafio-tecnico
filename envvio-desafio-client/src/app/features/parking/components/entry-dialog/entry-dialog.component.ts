@@ -36,7 +36,8 @@ export class EntryDialogComponent implements OnInit {
         Validators.required,
         Validators.minLength(7),
         Validators.maxLength(7),
-        Validators.pattern(/^[A-Z0-9]{7}$/)
+        // Brazilian plate patterns: LLLNNNN (old) or LLLNLNN (Mercosul)
+        Validators.pattern(/^[A-Z]{3}([0-9]{4}|[0-9][A-J][0-9]{2})$/)
       ]],
       model: [''],
       color: [''],
