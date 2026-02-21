@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { ParkingOperationService } from '../../services/parking-operation.service';
 import { ParkingSession } from '../../models/parking-session.model';
@@ -12,11 +12,12 @@ import { formatLocalTime, calculateDuration, getVehicleTypeDisplay } from '../..
   templateUrl: './parking-lot.component.html',
   styleUrl: './parking-lot.component.scss'
 })
-export class ParkingLotComponent implements OnInit {
+export class ParkingLotComponent implements OnInit, OnDestroy {
   sessions: ParkingSession[] = [];
   displayedColumns: string[] = ['plate', 'model', 'type', 'entryTime', 'duration', 'actions'];
   isLoading = false;
   errorMessage = '';
+  private durationUpdateInterval: any;
 
   constructor(
     private parkingService: ParkingOperationService,
@@ -25,6 +26,16 @@ export class ParkingLotComponent implements OnInit {
 
   ngOnInit(): void {
     this.loadSessions();
+
+    this.durationUpdateInterval = setInterval(() => {
+      this.sessions = [...this.sessions];
+    }, 60000);
+  }
+
+  ngOnDestroy(): void {
+    if (this.durationUpdateInterval) {
+      clearInterval(this.durationUpdateInterval);
+    }
   }
 
   loadSessions(): void {
